@@ -472,11 +472,13 @@ The architecture created during the first weeks will not necessarily be the arch
 
 # Team
 
-| Name | Role |
-|---|---|
-| Piotr Zegarek | Project Manager |
-| Igor Czernichowski | Project Manager |
-| Mateusz Ruszczyński | Developer |
+| Name                | Role            |
+|---------------------|-----------------|
+| Piotr Zegarek       | Project Manager |
+| Igor Czernichowski  | Project Manager |
+| Mateusz Ruszczyński | Developer       |
+| Anton Tsikhanovich  | Developer       |
+
 
 ---
 
