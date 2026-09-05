@@ -479,6 +479,7 @@ The architecture created during the first weeks will not necessarily be the arch
 | Mateusz Ruszczyński | Developer       |
 | Cezary Kulig        | Developer       |
 | Anton Tsikhanovich  | Developer       |
+| Tomasz Herman       | Developer       |
 
 ---
 
