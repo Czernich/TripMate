@@ -478,6 +478,7 @@ The architecture created during the first weeks will not necessarily be the arch
 | Igor Czernichowski  | Project Manager |
 | Mateusz Ruszczyński | Developer |
 | Cezary Kulig        | Developer |
+| Tomasz Herman       | Developer |
 
 ---
 
