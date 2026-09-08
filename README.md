@@ -480,6 +480,7 @@ The architecture created during the first weeks will not necessarily be the arch
 | Cezary Kulig        | Developer       |
 | Anton Tsikhanovich  | Developer       |
 | Tomasz Herman       | Developer       |
+| Anita Gajewska      | Developer       |
 
 ---
 
