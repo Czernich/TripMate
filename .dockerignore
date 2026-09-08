@@ -1,0 +1,54 @@
+# Python cache
+**/__pycache__
+**/*.py[cod]
+**/*$py.class
+
+# Virtual environments
+**/venv
+**/env
+**/.venv
+
+# Local database
+**/*.sqlite3
+
+# Environment files
+**/.env
+**/.env.*
+
+# Development files
+.git
+.gitignore
+**/.vscode
+**/.idea
+
+# Testing
+**/tests
+**/.pytest_cache
+**/.coverage
+**/htmlcov
+
+# Documentation
+README.md
+docs
+*.md
+
+# Local media/static
+media
+staticfiles
+
+# CI/CD
+.github
+.gitlab-ci.yml
+
+# Docker (sam siebie nie potrzebuje kopiować)
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# System operacyjny
+**/.DS_Store
+**/Thumbs.db
+
+# Cache narzędzi
+**/.mypy_cache
+**/.ruff_cache
