@@ -131,14 +131,19 @@ git clone https://github.com/Czernich/TripMate.git
 cd tripmate
 ```
 
-## 2. Create a virtual environment
+## 2. Run with Docker 
+```bash
+docker build -t <image_name> .
+docker run -p 8000:8000 <image_name>
+```
+## 3. Run locally without Docker
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate  # on Windows: .venv\Scripts\activate
 ```
 
-## 3. Install dependencies
+## 4. Install dependencies
 
 Install the pinned dependency management tools:
 
@@ -159,7 +164,7 @@ Sync the virtual environment:
 pip-sync requirements.txt requirements-dev.txt
 ```
 
-## 4. Manage dependencies
+## 5. Manage dependencies
 
 `requirements.in` contains runtime dependencies and `requirements-dev.in` contains development dependencies.
 
@@ -186,15 +191,15 @@ pip-compile --output-file=requirements-dev.txt requirements-dev.in
 
 After changing dependencies, sync the environment using the command from the installation section.
 
-## 5. Configure environment
+## 6. Configure environment
 
 No environment variables are required yet at this stage. An `.env.example` file will be added once configuration (database, external APIs) is introduced.
 
-## 6. Start required services
+## 7. Start required services
 
 None yet - Stage 1 uses in-memory storage only.
 
-## 7. Run the application
+## 8. Run the application
 
 ```bash
 uvicorn app.main:app --reload
