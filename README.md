@@ -131,14 +131,17 @@ git clone https://github.com/Czernich/TripMate.git
 cd tripmate
 ```
 
-## 2. Create a virtual environment
+## 2. Run with Docker 
+```bash
+docker build -t <image_name> .
+docker run -p 8000:8000 <image_name>
+```
+## 3. Run locally without Docker
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate  # on Windows: .venv\Scripts\activate
 ```
-
-## 3. Install dependencies
 
 ```bash
 pip install -r requirements.txt
