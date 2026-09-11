@@ -1,3 +1,6 @@
 [tool.bandit]
 exclude_dirs = ["tests", "migrations", ".venv"]
 skips = ["B101"]
+
+[tool.mypy]
+chceck_untyped_defs = true
