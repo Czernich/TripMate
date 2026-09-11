@@ -10,7 +10,7 @@ FROM python:3.14.7-slim-trixie AS runtime
 
 WORKDIR /app
 
-RUN adduser --disabled-password --no-create-home appuser
+RUN adduser --disabled-password appuser
 
 COPY --from=builder /install /usr/local
 
