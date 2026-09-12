@@ -140,19 +140,92 @@ source .venv/bin/activate  # on Windows: .venv\Scripts\activate
 
 ## 3. Install dependencies
 
+Install `pip-tools`:
+
 ```bash
-pip install -r requirements.txt
+python -m pip install pip-tools
 ```
 
-## 4. Configure environment
+Sync the virtual environment with the locked dependencies:
+
+```bash
+pip-sync requirements.txt requirements-dev.txt
+```
+
+## 4. Manage dependencies
+
+`requirements.in` and `requirements-dev.in` are the source files for dependency declarations.
+
+`requirements.txt` and `requirements-dev.txt` are generated files and should not be edited manually.
+
+### Add a runtime dependency
+
+Add the package to `requirements.in`
+
+Regenerate the compiled requirements:
+
+```bash
+pip-compile requirements.in
+pip-compile requirements-dev.in
+```
+
+Sync your local environment:
+```bash
+pip-sync requirements.txt requirements-dev.txt
+```
+
+### Add a development dependency
+
+Add the package to `requirements-dev.in`
+
+Regenerate the compiled development requirements:
+
+```bash
+pip-compile requirements-dev.in
+```
+
+Sync your local environment:
+```bash
+pip-sync requirements.txt requirements-dev.txt
+```
+
+### Update an existing dependency
+
+To update specific runtime dependency:
+
+```bash
+pip-compile -P <package-name> requirements.in
+pip-compile requirements-dev.in
+```
+
+Sync your local environment:
+
+```bash
+pip-sync requirements.txt requirements-dev.txt
+```
+
+To update a specific development dependency:
+
+```bash
+pip-compile -P <package-name> requirements-dev.in
+```
+Sync your local environment:
+
+```bash
+pip-sync requirements.txt requirements-dev.txt
+```
+
+> Avoid using `--upgrade` / `-U` unless you intentionally want to upgrade the entire dependency set.
+
+## 5. Configure environment
 
 No environment variables are required yet at this stage. An `.env.example` file will be added once configuration (database, external APIs) is introduced.
 
-## 5. Start required services
+## 6. Start required services
 
 None yet - Stage 1 uses in-memory storage only.
 
-## 6. Run the application
+## 7. Run the application
 
 ```bash
 uvicorn app.main:app --reload
