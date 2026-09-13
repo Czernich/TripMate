@@ -58,7 +58,7 @@ Not introduced yet. Data is currently stored in memory. PostgreSQL + SQLAlchemy 
 
 ## Infrastructure
 
-Not introduced yet. Docker and Docker Compose are planned as part of the initial setup tasks.
+Docker and Docker Compose are used for local development. See [Docker](#docker) for details.
 
 ## Testing
 
@@ -117,7 +117,7 @@ app/modules/
 
 ## Optional
 
-- Docker & Docker Compose (planned - see [Docker](#docker))
+- Docker & Docker Compose (see [Docker](#docker))
 - `make` (once the Makefile setup task is completed)
 
 ---
@@ -131,12 +131,31 @@ git clone https://github.com/Czernich/TripMate.git
 cd tripmate
 ```
 
-## 2. Run with Docker 
+## 2. Run with Docker Compose (recommended)
+
+This starts both the API and a PostgreSQL database.
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+The API will be available at `http://localhost:8000`, and PostgreSQL will be reachable on `localhost:5433` (mapped from the container's internal port 5432).
+
+To stop and remove containers:
+
+```bash
+docker compose down
+```
+
+## 3. Run with Docker (API only, no database)
+
 ```bash
 docker build -t <image_name> .
 docker run -p 8000:8000 <image_name>
 ```
-## 3. Run locally without Docker
+
+## 4. Run locally without Docker
 
 ```bash
 python -m venv .venv
@@ -147,15 +166,15 @@ source .venv/bin/activate  # on Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## 4. Configure environment
+## 5. Configure environment
 
-No environment variables are required yet at this stage. An `.env.example` file will be added once configuration (database, external APIs) is introduced.
+Copy `.env.example` to `.env` and adjust values as needed. See [Environment Variables](#environment-variables) for details.
 
-## 5. Start required services
+## 6. Start required services
 
-None yet - Stage 1 uses in-memory storage only.
+If running without Docker Compose, you'll need PostgreSQL running separately, or use the Docker Compose flow above.
 
-## 6. Run the application
+## 7. Run the application
 
 ```bash
 uvicorn app.main:app --reload
@@ -165,15 +184,15 @@ uvicorn app.main:app --reload
 
 # Environment Variables
 
-Never commit secrets to the repository.
-
-No environment variables are required at this stage.
+Never commit secrets to the repository. Copy `.env.example` to `.env` and adjust values as needed.
 
 | Variable | Required | Default | Description |
 |---|---|---|---|
-| - | - | - | None yet |
+| `POSTGRES_USER` | Yes | - | PostgreSQL username |
+| `POSTGRES_PASSWORD` | Yes | - | PostgreSQL password |
+| `POSTGRES_DB` | Yes | - | PostgreSQL database name |
 
-An `.env.example` file will be added as part of the initial setup tasks, once configuration is introduced.
+`.env` is listed in `.gitignore` and must never be committed.
 
 ---
 
@@ -193,7 +212,9 @@ http://127.0.0.1:8000
 
 ## Production-like mode
 
-Not applicable yet - will be added once Docker is introduced.
+```bash
+docker compose up --build
+```
 
 ---
 
@@ -299,15 +320,16 @@ Not introduced yet. Ruff (linting/formatting) and mypy (type checking) are plann
 
 # Docker
 
-Not introduced yet. Docker and Docker Compose are planned as part of the initial setup tasks, to let a new developer run the whole environment without installing dependencies manually.
+The project can be run fully containerized via Docker Compose, which starts both the API and a PostgreSQL database.
 
-## Services (planned)
+## Services
 
 | Service | Description | Port |
 |---|---|---|
 | api | FastAPI backend | 8000 |
-| postgres | PostgreSQL database | 5432 (planned) |
-| redis | Cache / broker | 6379 (planned) |
+| db | PostgreSQL database (image: `postgres:18.6-trixie`) | 5433 (host) → 5432 (container) |
+
+See [Getting Started](#getting-started) for usage instructions.
 
 ---
 
