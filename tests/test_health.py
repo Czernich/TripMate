@@ -1,5 +1,7 @@
+from sqlalchemy import text
+
 from app.main import app
-from app.database import get_db
+from app.database import engine, get_db, SessionLocal
 
 
 def test_health(client):
@@ -14,14 +16,23 @@ def test_health_db(client):
     assert response.json() == {"status": "ok"}
 
 
+def test_session_lifecycle_closes_without_leaking_connections():
+    before = engine.pool.checkedout()
+
+    with SessionLocal() as session:
+        session.execute(text("SELECT 1"))
+        assert engine.pool.checkedout() >= before + 1
+    assert engine.pool.checkedout() == before
+
+
 class FailingSession:
     def execute(self, *args, **kwargs):
         raise RuntimeError("Database unavailable")
-    
-    
+
+
 def override_get_db():
     yield FailingSession()
-    
+
 
 def test_health_db_unavailable(client):
     app.dependency_overrides[get_db] = override_get_db
