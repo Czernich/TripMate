@@ -59,8 +59,12 @@ typing-inspection==0.4.4
     #   fastapi
     #   pydantic
 uvicorn[standard]==0.39.0
+<<<<<<< HEAD
     # via -r requirements.in
 watchfiles==1.2.0
     # via uvicorn
 websockets==17.1
     # via uvicorn
+=======
+SQLAlchemy==2.0.52
+>>>>>>> e8de269 (TPM-19: add SQLAlchemy)
