@@ -44,4 +44,4 @@ def test_health_db_unavailable(client):
         app.dependency_overrides.pop(get_db, None)
 
     assert response.status_code == 503
-    assert "Database unavailable" in response.json()["detail"]
+    assert response.json()["detail"] == "Database unavailable"
