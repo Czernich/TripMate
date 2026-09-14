@@ -1,6 +1,7 @@
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 import os
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
+
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./tripmate.db")
 POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "10"))
@@ -32,14 +33,16 @@ engine = create_async_engine(
     pool_timeout=POOL_TIMEOUT,
     pool_recycle=POOL_RECYCLE,
     echo=ECHO,
-    connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+    connect_args={"check_same_thread": False}
+    if DATABASE_URL.startswith("sqlite")
+    else {},
 )
 
 SessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False)
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-     async with SessionLocal() as session:
+    async with SessionLocal() as session:
         try:
             yield session
         except Exception:
