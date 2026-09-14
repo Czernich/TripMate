@@ -67,4 +67,9 @@ websockets==17.1
     # via uvicorn
 =======
 SQLAlchemy==2.0.52
+<<<<<<< HEAD
 >>>>>>> e8de269 (TPM-19: add SQLAlchemy)
+=======
+aiosqlite==0.21.0
+greenlet==3.5.6
+>>>>>>> e1afc0b (TPM-19: update requirements.txt)
