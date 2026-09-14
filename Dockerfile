@@ -8,15 +8,16 @@ RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 FROM python:3.14.7-slim-trixie AS runtime
 
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
 RUN adduser --disabled-password appuser
 
 COPY --from=builder /install /usr/local
 
-COPY . .
-
-RUN chown -R appuser:appuser /app
+COPY --chown=appuser:appuser . .
 
 USER appuser
 

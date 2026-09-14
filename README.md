@@ -133,8 +133,8 @@ cd tripmate
 
 ## 2. Run with Docker 
 ```bash
-docker build -t <image_name> .
-docker run -p 8000:8000 <image_name>
+docker build -t trip_mate .
+docker run -p 8000:8000 trip_mate
 ```
 ## 3. Run locally without Docker
 
