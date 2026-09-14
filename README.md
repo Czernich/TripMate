@@ -290,7 +290,47 @@ At this stage, tests cover the HTTP layer of the `/trips` endpoints, including b
 
 # Code Quality
 
-Not introduced yet. Ruff (linting/formatting) and mypy (type checking) are planned as part of the initial setup tasks, enforced locally via pre-commit and in CI.
+## Code Quality & Pre-commit Hooks
+
+This project uses [pre-commit](https://pre-commit.com/) to run automated checks before every commit. This catches formatting issues, common security problems, and type errors before they reach the repository.
+
+### Setup (one-time, after cloning)
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+This activates the Git hook locally. It only needs to be run once per clone.
+
+### What runs on each commit
+
+| Tool | Purpose |
+|---|---|
+| `pre-commit-hooks` | Basic hygiene: trailing whitespace, missing EOF newline, valid YAML, no large files, no accidentally committed private keys |
+| [`ruff`](https://docs.astral.sh/ruff/) | Linting + auto-formatting for Python |
+| [`mypy`](https://mypy.readthedocs.io/) | Static type checking |
+| [`bandit`](https://bandit.readthedocs.io/) | Scans for common security issues in Python code |
+
+Full configuration: [`.pre-commit-config.yaml`](.pre-commit-config.yaml)
+
+### Running manually
+
+Check all files (not just staged ones):
+```bash
+pre-commit run --all-files
+```
+
+Run a single hook:
+```bash
+pre-commit run mypy --all-files
+```
+
+### Updating hook versions
+
+```bash
+pre-commit autoupdate
+```
 
 ---
 
