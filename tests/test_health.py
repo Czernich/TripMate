@@ -1,5 +1,5 @@
+import pytest
 from sqlalchemy import text
-
 from app.main import app
 from app.database import engine, get_db, SessionLocal
 
@@ -15,12 +15,12 @@ def test_health_db(client):
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
 
-
-def test_session_lifecycle_closes_without_leaking_connections():
+@pytest.mark.asyncio
+async def test_session_lifecycle_closes_without_leaking_connections():
     before = engine.pool.checkedout()
 
-    with SessionLocal() as session:
-        session.execute(text("SELECT 1"))
+    async with SessionLocal() as session:
+        await session.execute(text("SELECT 1"))
         assert engine.pool.checkedout() >= before + 1
     assert engine.pool.checkedout() == before
 

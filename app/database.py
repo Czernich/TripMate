@@ -1,9 +1,8 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 import os
-from typing import Generator
+from typing import AsyncGenerator
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./tripmate.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./tripmate.db")
 POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "10"))
 MAX_OVERFLOW = int(os.getenv("DB_MAX_OVERFLOW", "5"))
 POOL_TIMEOUT = int(os.getenv("DB_POOL_TIMEOUT", "30"))
@@ -26,7 +25,7 @@ Connection pooling settings (documented):
         still healthy.
 """
 
-engine = create_engine(
+engine = create_async_engine(
     DATABASE_URL,
     pool_size=POOL_SIZE,
     max_overflow=MAX_OVERFLOW,
@@ -36,13 +35,13 @@ engine = create_engine(
     connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 )
 
-SessionLocal = sessionmaker(bind=engine)
+SessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False)
 
 
-def get_db() -> Generator[Session, None, None]:
-    with SessionLocal() as session:
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+     async with SessionLocal() as session:
         try:
             yield session
         except Exception:
-            session.rollback()
+            await session.rollback()
             raise
