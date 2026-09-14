@@ -140,13 +140,20 @@ source .venv/bin/activate  # on Windows: .venv\Scripts\activate
 
 ## 3. Install dependencies
 
-Install `pip-tools`:
+Install the pinned dependency management tools:
 
 ```bash
-python -m pip install pip-tools
+python -m pip install pip==26.2.1 pip-tools==7.6.1
 ```
 
-Sync the virtual environment with the locked dependencies:
+Compile the dependency files:
+
+```bash
+pip-compile --output-file=requirements.txt requirements.in
+pip-compile --output-file=requirements-dev.txt requirements-dev.in
+```
+
+Sync the virtual environment:
 
 ```bash
 pip-sync requirements.txt requirements-dev.txt
@@ -154,68 +161,30 @@ pip-sync requirements.txt requirements-dev.txt
 
 ## 4. Manage dependencies
 
-`requirements.in` and `requirements-dev.in` are the source files for dependency declarations.
+`requirements.in` contains runtime dependencies and `requirements-dev.in` contains development dependencies.
 
-`requirements.txt` and `requirements-dev.txt` are generated files and should not be edited manually.
+All direct dependencies must be pinned to a specific version in the `.in` files.
 
-### Add a runtime dependency
+`requirements.txt` and `requirements-dev.txt` are generated files and must not be edited manually.
 
-Add the package to `requirements.in`
+### Runtime dependencies
 
-Regenerate the compiled requirements:
-
-```bash
-pip-compile requirements.in
-pip-compile requirements-dev.in
-```
-
-Sync your local environment:
-```bash
-pip-sync requirements.txt requirements-dev.txt
-```
-
-### Add a development dependency
-
-Add the package to `requirements-dev.in`
-
-Regenerate the compiled development requirements:
+Add a new dependency or update an existing version in `requirements.in`, then run:
 
 ```bash
-pip-compile requirements-dev.in
+pip-compile --output-file=requirements.txt requirements.in
+pip-compile --output-file=requirements-dev.txt requirements-dev.in
 ```
 
-Sync your local environment:
-```bash
-pip-sync requirements.txt requirements-dev.txt
-```
+### Development dependencies
 
-### Update an existing dependency
-
-To update specific runtime dependency:
+Add a new dependency or update an existing version in `requirements-dev.in`, then run:
 
 ```bash
-pip-compile -P <package-name> requirements.in
-pip-compile requirements-dev.in
+pip-compile --output-file=requirements-dev.txt requirements-dev.in
 ```
 
-Sync your local environment:
-
-```bash
-pip-sync requirements.txt requirements-dev.txt
-```
-
-To update a specific development dependency:
-
-```bash
-pip-compile -P <package-name> requirements-dev.in
-```
-Sync your local environment:
-
-```bash
-pip-sync requirements.txt requirements-dev.txt
-```
-
-> Avoid using `--upgrade` / `-U` unless you intentionally want to upgrade the entire dependency set.
+After changing dependencies, sync the environment using the command from the installation section.
 
 ## 5. Configure environment
 
