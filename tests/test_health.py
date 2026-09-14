@@ -1,7 +1,8 @@
 import pytest
 from sqlalchemy import text
+
+from app.database import SessionLocal, engine, get_db
 from app.main import app
-from app.database import engine, get_db, SessionLocal
 
 
 def test_health(client):
@@ -14,6 +15,7 @@ def test_health_db(client):
     response = client.get("/health/db")
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
 
 @pytest.mark.asyncio
 async def test_session_lifecycle_closes_without_leaking_connections():
