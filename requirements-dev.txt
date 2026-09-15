@@ -12,16 +12,10 @@ build==1.6.1
     # via pip-tools
 cfgv==3.5.0
     # via pre-commit
-click==8.5.0
+click==8.1.8
     # via
     #   -c requirements.txt
     #   pip-tools
-colorama==0.4.6
-    # via
-    #   -c requirements.txt
-    #   bandit
-    #   build
-    #   pytest
 distlib==0.4.3
     # via virtualenv
 filelock==3.32.6
