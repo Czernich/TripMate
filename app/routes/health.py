@@ -17,7 +17,7 @@ async def health_check():
 
 
 @router.get("/health/db", status_code=200)
-async def health_db_check(db: AsyncSession = Depends(get_db)):
+async def health_db_check(db: AsyncSession = Depends(get_db)):  # noqa: B008
     try:
         await db.execute(text("SELECT 1"))
     except Exception:
