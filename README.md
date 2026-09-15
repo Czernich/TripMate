@@ -140,19 +140,61 @@ source .venv/bin/activate  # on Windows: .venv\Scripts\activate
 
 ## 3. Install dependencies
 
+Install the pinned dependency management tools:
+
 ```bash
-pip install -r requirements.txt
+python -m pip install pip==26.2.1 pip-tools==7.6.1
 ```
 
-## 4. Configure environment
+Compile the dependency files:
+
+```bash
+pip-compile --output-file=requirements.txt requirements.in
+pip-compile --output-file=requirements-dev.txt requirements-dev.in
+```
+
+Sync the virtual environment:
+
+```bash
+pip-sync requirements.txt requirements-dev.txt
+```
+
+## 4. Manage dependencies
+
+`requirements.in` contains runtime dependencies and `requirements-dev.in` contains development dependencies.
+
+All direct dependencies must be pinned to a specific version in the `.in` files.
+
+`requirements.txt` and `requirements-dev.txt` are generated files and must not be edited manually.
+
+### Runtime dependencies
+
+Add a new dependency or update an existing version in `requirements.in`, then run:
+
+```bash
+pip-compile --output-file=requirements.txt requirements.in
+pip-compile --output-file=requirements-dev.txt requirements-dev.in
+```
+
+### Development dependencies
+
+Add a new dependency or update an existing version in `requirements-dev.in`, then run:
+
+```bash
+pip-compile --output-file=requirements-dev.txt requirements-dev.in
+```
+
+After changing dependencies, sync the environment using the command from the installation section.
+
+## 5. Configure environment
 
 No environment variables are required yet at this stage. An `.env.example` file will be added once configuration (database, external APIs) is introduced.
 
-## 5. Start required services
+## 6. Start required services
 
 None yet - Stage 1 uses in-memory storage only.
 
-## 6. Run the application
+## 7. Run the application
 
 ```bash
 uvicorn app.main:app --reload
