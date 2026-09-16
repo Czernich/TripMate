@@ -286,7 +286,6 @@ It provides short, memorable commands for common developer tasks:
 
 This avoids long CLI commands and keeps the workflow consistent across the team.
 
-
 # Running Tests
 
 ## All tests
