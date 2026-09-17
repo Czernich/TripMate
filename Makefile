@@ -2,13 +2,13 @@
 setup:
 	docker build -t tripmate
 
-# Start docker compose in detached mode
-up:
-	docker compose up -d
-
 # Stop docker compose
 down:
 	docker compose down
+
+# Start docker compose in detached mode
+up:
+	docker compose up -d
 
 # Follow logs from app container
 logs:
