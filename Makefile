@@ -1,6 +1,6 @@
 # Built docker image
 setup:
-	docker build -t tripmate
+	docker build -t tripmate .
 
 # Stop docker compose
 down:
