@@ -1,6 +1,7 @@
 -c requirements.txt
 pip-tools==7.6.1
 pytest==8.4.2
+pytest-asyncio==1.2.0
 pre-commit==4.6.2
 bandit==1.9.4
 mypy==2.3.1
