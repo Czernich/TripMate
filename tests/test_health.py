@@ -5,6 +5,15 @@ from app.database import SessionLocal, engine, get_db
 from app.main import app
 
 
+class FailingSession:
+    def execute(self, *args, **kwargs):
+        raise RuntimeError("Database unavailable")
+
+
+def override_get_db():
+    yield FailingSession()
+
+
 def test_health(client):
     response = client.get("/health")
     assert response.status_code == 200
@@ -25,15 +34,6 @@ async def test_session_lifecycle_closes_without_leaking_connections():
         await session.execute(text("SELECT 1"))
         assert engine.pool.checkedout() >= before + 1
     assert engine.pool.checkedout() == before
-
-
-class FailingSession:
-    def execute(self, *args, **kwargs):
-        raise RuntimeError("Database unavailable")
-
-
-def override_get_db():
-    yield FailingSession()
 
 
 def test_health_db_unavailable(client):
