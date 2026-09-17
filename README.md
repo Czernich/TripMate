@@ -341,6 +341,18 @@ Possible future integrations:
 | - | - | - | None introduced yet |
 
 ---
+## Using Makefile (recommended)
+
+Once Docker and Docker Compose are introduced, the recommended way to interact with the project is through the Makefile.
+It provides short, memorable commands for common developer tasks:
+
+- make setup — build the Docker image
+- make up — start the environment
+- make down — stop containers
+- make logs — follow logs from all services
+- make restart — restart the environment
+
+This avoids long CLI commands and keeps the workflow consistent across the team.
 
 # Running Tests
 
