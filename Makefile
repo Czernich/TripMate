@@ -1,6 +1,8 @@
+.PHONY: setup down up logs restart
+
 # Built docker image
 setup:
-	docker build -t tripmate .
+	docker build -t trip_mate .
 
 # Stop docker compose
 down:
@@ -12,7 +14,7 @@ up:
 
 # Follow logs from app container
 logs:
-	docker compose logs -f app
+	docker compose logs -f trip_mate
 
 # Restart all containers
 restart:
