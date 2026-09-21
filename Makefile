@@ -1,14 +1,17 @@
-.PHONY: setup down up logs restart
+.PHONY: init deps-compile deps-sync setup down up logs restart
 
 # Direct system setup: env file, pre-commit hooks, and python tools
 init:
-	cp -n sample.env .env || true
+	@test -f .env || cp sample.env .env
 	pre-commit install
-	python -m pip install --upgrade pip pip-tools
+	python3 -m pip install --upgrade pip pip-tools
 
-# Compile and sync python dependencies only
-deps:
+# Compile requirements.in -> requirements.txt (only when dependencies change)
+deps-compile:
 	pip-compile requirements.in
+
+# Sync local virtual environment with requirements.txt
+deps-sync:
 	pip-sync requirements.txt
 
 # Built docker image

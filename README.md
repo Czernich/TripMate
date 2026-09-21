@@ -347,7 +347,8 @@ Once Docker and Docker Compose are introduced, the recommended way to interact w
 It provides short, memorable commands for common developer tasks:
 
 - make init — copy sample.env to .env, install pre-commit hooks, and update pip-tools
-- make deps — compile requirements.in and sync dependencies using pip-tools
+- make deps-compile — compile requirements.in to requirements.txt
+- make deps-sync — sync local virtual environment with requirements.txt
 - make setup — build the Docker image
 - make up — start the environment
 - make down — stop containers
