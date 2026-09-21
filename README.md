@@ -81,6 +81,7 @@ tripmate/
 ├── app/
 │   ├── main.py            # FastAPI app instance and startup
 │   ├── routes/             # HTTP layer - FastAPI routers and request/response schemas
+│   ├── schemas/            # Pydantic request/response schemas and validation
 │   ├── models/             # Domain / database models
 │   └── modules/            # Business logic, organized per domain module (e.g. trips/, expenses/)
 ├── tests/
@@ -95,6 +96,12 @@ app/routes/
     HTTP layer: FastAPI routers, request/response handling, and the Pydantic
     schemas used at the API boundary. Should stay thin and delegate real work
     to app/modules.
+
+app/schemas/
+    Pydantic models used to validate and serialize request/response data
+    (e.g. TripCreate, TripDetail). Business rule validation (e.g. date
+    ordering, non-empty fields) lives here, close to the data shape it
+    validates.
 
 app/models/
     Domain and database models (Pydantic domain objects now; SQLAlchemy models
@@ -526,6 +533,7 @@ Application Logic (in-memory storage)
 | Component | Responsibility |
 |---|---|
 | `app/routes` | HTTP layer - FastAPI routers, request/response handling and validation |
+| `app/schemas` | Pydantic request/response schemas and business rule validation |
 | `app/models` | Domain / database models |
 | `app/modules` | Application/business logic, per domain (e.g. trips) |
 
