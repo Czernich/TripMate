@@ -2,8 +2,8 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.modules.trips.trip_repository import TripRepository
-from app.modules.trips.trip_service import TripService
+from app.modules.trips.repository import TripRepository
+from app.modules.trips.service import TripService
 
 
 async def get_trip_repository(
