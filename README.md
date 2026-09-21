@@ -313,7 +313,14 @@ Example request body for `POST /trips`:
 
 ## Database Engine
 
-Not introduced yet. Trips are currently stored in memory and are lost on application restart. See [Known Limitations](#known-limitations).
+Connection pooling settings:
+
+| Setting | Description |
+|---|---|
+| `pool_size` | Number of connections kept permanently open in the pool for the lifetime of the app process. |
+| `max_overflow` | Maximum number of extra connections allowed above `pool_size`. |
+| `pool_timeout` | How long a request waits for a free connection before SQLAlchemy raises a `TimeoutError` instead of hanging forever. |
+| `pool_recycle` | Connections older than this value are closed and reopened, even if they are still healthy. |
 
 ## ORM
 
