@@ -1,5 +1,5 @@
-from app.modules.trip.schemas import TripCreate
 from app.modules.trips.models import Trip
+from app.modules.trips.schemas import TripCreate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
