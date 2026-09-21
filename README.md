@@ -346,6 +346,8 @@ Possible future integrations:
 Once Docker and Docker Compose are introduced, the recommended way to interact with the project is through the Makefile.
 It provides short, memorable commands for common developer tasks:
 
+- make init — copy sample.env to .env, install pre-commit hooks, and update pip-tools
+- make deps — compile requirements.in and sync dependencies using pip-tools
 - make setup — build the Docker image
 - make up — start the environment
 - make down — stop containers
