@@ -1,22 +1,20 @@
-from datetime import date
-
-import pytest
 import pytest_asyncio
-from fastapi.testclient import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession
+from httpx import ASGITransport, AsyncClient
 
-from app.database import SessionLocal
+from app.database import Base, engine
 from app.main import app
 from app.models.trip import Trip
 
 
-@pytest.fixture
-def client():
-    client = TestClient(app)
-    return client
+async def client():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        yield client
 
-@pytest_asyncio.fixture
-async def session() -> AsyncSession:
-    async with SessionLocal() as session:
-        yield session
 
+@pytest_asyncio.fixture(autouse=True)
+async def reset_database_schema():
+    async with engine.begin() as connection:
+        await connection.run_sync(Base.metadata.drop_all)
+        await connection.run_sync(Base.metadata.create_all)
+    yield
