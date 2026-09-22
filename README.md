@@ -328,7 +328,37 @@ Not introduced yet. SQLAlchemy is planned for a later stage.
 
 ## Migrations
 
-Not introduced yet. Alembic is planned as part of the initial setup tasks.
+Database migrations are managed with Alembic. Connection settings are loaded
+from environment variables through `app.settings.settings_db`.
+
+Apply migrations:
+
+```bash
+docker compose run --rm trip_mate python -m alembic upgrade head
+```
+
+Check the current revision:
+
+```bash
+docker compose run --rm trip_mate python -m alembic current
+```
+
+Create an empty migration locally with the project's virtual environment activated:
+
+```bash
+python -m alembic revision -m "describe schema change"
+```
+
+Implement `upgrade()` and `downgrade()` in the generated file under
+`alembic/versions/`, then rebuild the image and apply it:
+
+```bash
+docker compose build trip_mate
+docker compose run --rm trip_mate python -m alembic upgrade head
+```
+
+Commit migration files to Git. The initial migration is an empty baseline.
+Autogeneration will be enabled once SQLAlchemy model metadata is connected.
 
 ---
 
