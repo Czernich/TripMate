@@ -12,7 +12,8 @@ class TripBase(BaseModel):
     @field_validator("name")
     @classmethod
     def name_not_blank(cls, value: str) -> str:
-        if not value.strip():
+        value = value.strip()
+        if not value:
             raise ValueError("name cannot be empty")
         return value
 

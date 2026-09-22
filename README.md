@@ -81,9 +81,10 @@ tripmate/
 ├── app/
 │   ├── main.py            # FastAPI app instance and startup
 │   ├── routes/             # HTTP layer - FastAPI routers and request/response schemas
-│   ├── schemas/            # Pydantic request/response schemas and validation
 │   ├── models/             # Domain / database models
-│   └── modules/            # Business logic, organized per domain module (e.g. trips/, expenses/)
+│   └── modules/            # Business logic, organized per domain module
+│       └── trips/          # Trip domain: schemas, services, rules
+│           └── schemas.py  # TripCreate, TripDetail and validation
 ├── tests/
 ├── requirements.txt
 └── README.md
@@ -97,20 +98,16 @@ app/routes/
     schemas used at the API boundary. Should stay thin and delegate real work
     to app/modules.
 
-app/schemas/
-    Pydantic models used to validate and serialize request/response data
-    (e.g. TripCreate, TripDetail). Business rule validation (e.g. date
-    ordering, non-empty fields) lives here, close to the data shape it
-    validates.
-
 app/models/
     Domain and database models (Pydantic domain objects now; SQLAlchemy models
     once persistence is introduced).
 
 app/modules/
     Application/business logic, grouped by domain (e.g. modules/trips/,
-    modules/expenses/). Each module contains the services and rules for its
-    own area, independent of the HTTP layer.
+    modules/expenses/). Each module contains the services, schemas and rules
+    for its own area, independent of the HTTP layer. Pydantic request/response
+    schemas and business rule validation for a domain live in that domain's
+    module (e.g. modules/trips/schemas.py), close to the logic they support.
 ```
 
 ---
@@ -533,9 +530,8 @@ Application Logic (in-memory storage)
 | Component | Responsibility |
 |---|---|
 | `app/routes` | HTTP layer - FastAPI routers, request/response handling and validation |
-| `app/schemas` | Pydantic request/response schemas and business rule validation |
 | `app/models` | Domain / database models |
-| `app/modules` | Application/business logic, per domain (e.g. trips) |
+| `app/modules` | Application/business logic, per domain (e.g. trips), including domain schemas and validation |
 
 ---
 

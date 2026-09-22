@@ -3,7 +3,7 @@ from datetime import date
 import pytest
 from pydantic import ValidationError
 
-from app.schemas.trip import TripCreate, TripDetail
+from app.modules.trips.schemas import TripCreate, TripDetail
 
 
 def test_trip_create_valid():
