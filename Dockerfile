@@ -11,9 +11,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 
-FROM builder AS builder-test
+FROM python:3.14.7-slim-trixie AS builder-test
 
 WORKDIR /app
+
+COPY --from=builder /install /install
 
 COPY requirements-dev.txt .
 
@@ -51,6 +53,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+RUN adduser --disabled-password appuser
+
 COPY --from=builder-test /install /usr/local
 
-COPY . .
+COPY --chown=appuser:appuser . .
+
+USER appuser
