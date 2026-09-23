@@ -11,15 +11,12 @@ class TripService:
     async def create_trip(self, trip: TripCreate) -> Trip:
         try:
             new_trip = await self.repository.create(trip)
-        except ValueError as exc:
-            raise RuntimeError(f"Can not create the trip: {exc}")
+        except Exception as exc:
+            raise RuntimeError(f"Can not create the trip: {exc}") from exc
         return new_trip
 
     async def list_trips(self) -> list[Trip]:
-        trips = await self.repository.list()
-        if not trips:
-            raise ValueError("There are no trips.")
-        return trips
+        return await self.repository.list()
 
     async def get_trip(self, trip_id: int) -> Trip:
         trip = await self.repository.get_by_id(trip_id)
