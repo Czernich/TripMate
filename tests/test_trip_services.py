@@ -99,3 +99,12 @@ async def test_get_trip():
     assert trip is not None
     assert trip.id == 7
     assert trip.destination == "Berlin"
+
+
+@pytest.mark.asyncio
+async def test_get_trip_no_exist():
+    repo = FakeTripRepository(trips=[])
+    service = TripService(repo)
+
+    with pytest.raises(ValueError, match="Trip with id 2 not found."):
+        await service.get_trip(2)
