@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     DB_POOL_TIMEOUT: int
     DB_POOL_RECYCLE: int
     DB_ECHO: bool
+    TESTING: bool = False
 
     @property
     def async_database_url(self) -> str:
