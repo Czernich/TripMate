@@ -48,3 +48,19 @@ async def test_trip_requires_destination(session: AsyncSession):
         await session.commit()
 
     await session.rollback()
+
+@pytest.mark.asyncio
+async def test_trip_dates_order(session: AsyncSession):
+    trip = Trip(
+        name="Invalid trip",
+        destination="Test City",
+        start_date=date(2026, 7, 14),
+        end_date=date(2026, 7, 1),
+    )
+
+    session.add(trip)
+
+    with pytest.raises(IntegrityError):
+        await session.commit()
+
+    await session.rollback()
