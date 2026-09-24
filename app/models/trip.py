@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, String, func
+from sqlalchemy import Date, DateTime, String, func, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -8,6 +8,13 @@ from app.models.base import Base
 
 class Trip(Base):
     __tablename__ = "trips"
+
+    __table_args__ = (
+        CheckConstraint(
+            "end_date >= start_date",
+            name="ck_trips_dates_order",
+        ),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
