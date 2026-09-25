@@ -16,33 +16,26 @@ def test_trip_create_valid():
     assert trip.name == "Barcelona Trip"
 
 
-def test_trip_create_empty_name_raises():
+@pytest.mark.parametrize(
+    "name, start_date, end_date",
+    [
+        pytest.param("", date(2026, 9, 10), date(2026, 9, 15), id="empty_name"),
+        pytest.param("   ", date(2026, 9, 10), date(2026, 9, 15), id="blank_name"),
+        pytest.param(
+            "Barcelona Trip",
+            date(2026, 9, 15),
+            date(2026, 9, 10),
+            id="end_before_start",
+        ),
+    ],
+)
+def test_trip_create_invalid_raises(name, start_date, end_date):
     with pytest.raises(ValidationError):
         TripCreate(
-            name="",
+            name=name,
             destination="Barcelona",
-            start_date=date(2026, 9, 10),
-            end_date=date(2026, 9, 15),
-        )
-
-
-def test_trip_create_blank_name_raises():
-    with pytest.raises(ValidationError):
-        TripCreate(
-            name="   ",
-            destination="Barcelona",
-            start_date=date(2026, 9, 10),
-            end_date=date(2026, 9, 15),
-        )
-
-
-def test_trip_create_end_before_start_raises():
-    with pytest.raises(ValidationError):
-        TripCreate(
-            name="Barcelona Trip",
-            destination="Barcelona",
-            start_date=date(2026, 9, 15),
-            end_date=date(2026, 9, 10),
+            start_date=start_date,
+            end_date=end_date,
         )
 
 
@@ -69,23 +62,24 @@ def test_trip_detail_valid():
     assert trip.name == "Barcelona Trip"
 
 
-def test_trip_detail_empty_name_raises():
+@pytest.mark.parametrize(
+    "name, start_date, end_date",
+    [
+        pytest.param("", date(2026, 9, 10), date(2026, 9, 15), id="empty_name"),
+        pytest.param(
+            "Barcelona Trip",
+            date(2026, 9, 15),
+            date(2026, 9, 10),
+            id="end_before_start",
+        ),
+    ],
+)
+def test_trip_detail_invalid_raises(name, start_date, end_date):
     with pytest.raises(ValidationError):
         TripDetail(
             id=1,
-            name="",
+            name=name,
             destination="Barcelona",
-            start_date=date(2026, 9, 10),
-            end_date=date(2026, 9, 15),
-        )
-
-
-def test_trip_detail_end_before_start_raises():
-    with pytest.raises(ValidationError):
-        TripDetail(
-            id=1,
-            name="Barcelona Trip",
-            destination="Barcelona",
-            start_date=date(2026, 9, 15),
-            end_date=date(2026, 9, 10),
+            start_date=start_date,
+            end_date=end_date,
         )
