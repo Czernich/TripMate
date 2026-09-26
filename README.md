@@ -82,7 +82,9 @@ tripmate/
 │   ├── main.py            # FastAPI app instance and startup
 │   ├── routes/             # HTTP layer - FastAPI routers and request/response schemas
 │   ├── models/             # Domain / database models
-│   └── modules/            # Business logic, organized per domain module (e.g. trips/, expenses/)
+│   └── modules/            # Business logic, organized per domain module
+│       └── trips/          # Trip domain: schemas, services, rules
+│           └── schemas.py  # TripCreate, TripDetail and validation
 ├── tests/
 ├── requirements.txt
 └── README.md
@@ -102,8 +104,10 @@ app/models/
 
 app/modules/
     Application/business logic, grouped by domain (e.g. modules/trips/,
-    modules/expenses/). Each module contains the services and rules for its
-    own area, independent of the HTTP layer.
+    modules/expenses/). Each module contains the services, schemas and rules
+    for its own area, independent of the HTTP layer. Pydantic request/response
+    schemas and business rule validation for a domain live in that domain's
+    module (e.g. modules/trips/schemas.py), close to the logic they support.
 ```
 
 ---
@@ -542,7 +546,7 @@ Application Logic (in-memory storage)
 |---|---|
 | `app/routes` | HTTP layer - FastAPI routers, request/response handling and validation |
 | `app/models` | Domain / database models |
-| `app/modules` | Application/business logic, per domain (e.g. trips) |
+| `app/modules` | Application/business logic, per domain (e.g. trips), including domain schemas and validation |
 
 ---
 
