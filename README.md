@@ -372,6 +372,27 @@ This avoids long CLI commands and keeps the workflow consistent across the team.
 pytest
 ```
 
+Tests reset the database schema only when `TESTING=true` and the database name
+ends with `_test`. Running pytest with the regular `.env` is rejected to avoid
+accidentally modifying the development database.
+
+## Tests with Docker Compose
+
+Run the test database and test suite in containers. After the test run, remove
+only the test containers. The development database and its `postgres_data`
+volume are not affected:
+
+```bash
+(
+   docker compose up --build trip_mate_tests db_tests
+
+   docker compose rm trip_mate_tests db_tests
+
+)
+```
+
+The test database has no volume, so it doesn't store any data. The test database schema is also recreated before every test.
+
 ## Testing Strategy
 
 At this stage, tests cover the HTTP layer of the `/trips` endpoints, including basic validation rules (e.g. empty trip name, end date before start date, and requesting a non-existent trip). Unit tests for isolated business logic, database tests, and external API mocks will be added as those layers are introduced.
