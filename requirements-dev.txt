@@ -16,6 +16,13 @@ click==8.1.8
     # via
     #   -c requirements.txt
     #   pip-tools
+colorama==0.4.6
+    # via
+    #   -c requirements.txt
+    #   bandit
+    #   build
+    #   click
+    #   pytest
 distlib==0.4.3
     # via virtualenv
 filelock==3.32.6
