@@ -5,6 +5,7 @@ from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from app.models.base import Base
+from app.models.trip import Trip
 from app.settings import settings_db
 
 
