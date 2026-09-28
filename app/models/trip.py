@@ -1,9 +1,9 @@
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, String, func, CheckConstraint
+from sqlalchemy import CheckConstraint, Date, DateTime, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base
+from app.database import Base
 
 
 class Trip(Base):
