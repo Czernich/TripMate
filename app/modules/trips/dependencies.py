@@ -6,13 +6,13 @@ from app.modules.trips.repository import TripRepository
 from app.modules.trips.service import TripService
 
 
-async def get_trip_repository(
+def get_trip_repository(
     db: AsyncSession = Depends(get_db),  # noqa: B008
 ) -> TripRepository:
     return TripRepository(db)
 
 
-async def get_trip_service(
+def get_trip_service(
     repo: TripRepository = Depends(get_trip_repository),  # noqa: B008
 ) -> TripService:
     return TripService(repo)
