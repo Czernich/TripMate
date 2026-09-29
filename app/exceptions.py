@@ -6,6 +6,7 @@ class AppBaseException(Exception):
     The base exception for the entire application.
     All custom exceptions should inherit from it.
     """
+
     status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR
     error_code: str = "INTERNAL_SERVER_ERROR"
     message: str = "An unexpected server error occurred."
@@ -18,10 +19,8 @@ class AppBaseException(Exception):
         super().__init__(self.message)
 
 
-
 class TripException(AppBaseException):
     """Base exception for all trip-related errors."""
-    pass
 
 
 class TripNotFoundException(TripException):
