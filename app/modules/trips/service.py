@@ -1,5 +1,8 @@
-from app.exceptions import TripAlreadyExistsException, TripNotFoundException
 from app.models.trip import Trip
+from app.modules.trips.exceptions import (
+    TripAlreadyExistsException,
+    TripNotFoundException,
+)
 from app.modules.trips.repository import TripRepository
 
 
