@@ -8,7 +8,7 @@ class AppBaseException(Exception):
     """
     status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR
     error_code: str = "INTERNAL_SERVER_ERROR"
-    message: str = "Wystąpił nieoczekiwany błąd serwera."
+    message: str = "An unexpected server error occurred."
 
     def __init__(self, message: str | None = None, error_code: str | None = None):
         if message:
@@ -18,7 +18,6 @@ class AppBaseException(Exception):
         super().__init__(self.message)
 
 
-# --- Błędy domeny "Trip" ---
 
 class TripException(AppBaseException):
     """Base exception for all trip-related errors."""
@@ -34,13 +33,13 @@ class TripNotFoundException(TripException):
 class TripAlreadyExistsException(TripException):
     status_code = status.HTTP_409_CONFLICT
     error_code = "TRIP_ALREADY_EXISTS"
-    message = "A trip already exists."
+    message = "Trip already exists."
 
 
-class TripAccessDeniedException(TripException):
-    status_code = status.HTTP_403_FORBIDDEN
-    error_code = "TRIP_ACCESS_DENIED"
-    message = "You do not have permission to edit this trip."
+class TripUnprocessableException(TripException):
+    status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+    error_code = "TRIP_UNPROCESSABLE"
+    message = "The trip cannot be edited in its current state."
 
 
 class TripFullException(TripException):
