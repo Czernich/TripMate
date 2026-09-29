@@ -573,15 +573,33 @@ Application Logic (in-memory storage)
 
 # Error Handling
 
+The application uses custom exception handling hierarchy extending `AppBaseException`. Errors raised within domain services are caught and returned as structured HTTP responses.
+
+## Custom Exceptions Standard
+
+All custom application errors share a uniform structure:
+* **`status_code`**: Corresponding HTTP status code.
+* **`error_code`**: Machine-readable string identifier for API clients.
+* **`message`**: Human-readable error description.
+
+| Exception | HTTP Status | Error Code | Default Message |
+|---|---|---|---|
+| `AppBaseException` | `500 Internal Server Error` | `INTERNAL_SERVER_ERROR` | An unexpected server error occurred. |
+| `TripNotFoundException` | `404 Not Found` | `TRIP_NOT_FOUND` | Trip not found. |
+| `TripAlreadyExistsException` | `409 Conflict` | `TRIP_ALREADY_EXISTS` | Trip already exists. |
+| `TripUnprocessableException` | `422 Unprocessable Entity` | `TRIP_UNPROCESSABLE` | The trip cannot be edited in its current state. |
+| `TripFullException` | `400 Bad Request` | `TRIP_IS_FULL` | Trip is fully booked. |
+
 ## API Error Format
+
+Standard JSON response structure returned by custom application exceptions:
 
 ```json
 {
-  "detail": "TODO"
+  "code": "TRIP_ALREADY_EXISTS",
+  "message": "Trip already exists."
 }
 ```
-
-Current format: FastAPI's default `{"detail": "..."}` shape for HTTP and validation errors. A more structured, consistent error-handling strategy is planned as one of the initial setup tasks.
 
 ## Domain Errors
 
