@@ -9,11 +9,10 @@ class TripService:
 
     def create_trip(self, trip: Trip) -> Trip:
         try:
-            new_trip = self.repository.add(trip)
-        except TripAlreadyExistsException:
-            raise TripAlreadyExistsException
+            return self.repository.add(trip)
 
-        return new_trip
+        except TripAlreadyExistsException:
+            raise TripAlreadyExistsException()
 
     async def list_trips(self) -> list[Trip]:
         return await self.repository.get_all()
@@ -21,5 +20,7 @@ class TripService:
     async def get_trip(self, trip_id: int) -> Trip:
         trip = await self.repository.get_by_id(trip_id)
         if not trip:
-            raise TripNotFoundException()
+            raise TripNotFoundException(
+                message=f"Trip with id {trip_id} was not found."
+            )
         return trip
