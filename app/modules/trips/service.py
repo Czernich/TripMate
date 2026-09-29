@@ -1,6 +1,6 @@
+from app.exceptions import TripAlreadyExistsException, TripNotFoundException
 from app.models.trip import Trip
 from app.modules.trips.repository import TripRepository
-from app.exceptions import TripNotFoundException, TripAlreadyExistsException
 
 
 class TripService:
@@ -11,7 +11,8 @@ class TripService:
         try:
             new_trip = self.repository.add(trip)
         except TripAlreadyExistsException:
-            raise
+            raise TripAlreadyExistsException
+
         return new_trip
 
     async def list_trips(self) -> list[Trip]:
