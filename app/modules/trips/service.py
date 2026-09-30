@@ -6,12 +6,18 @@ class TripService:
     def __init__(self, repository: TripRepository):
         self.repository = repository
 
-    def create_trip(self, trip: Trip) -> Trip:
+    async def create_trip(self, trip: Trip) -> Trip:
         try:
             new_trip = self.repository.add(trip)
-        except Exception as exc:
-            raise RuntimeError(f"Can not create the trip: {exc}") from exc
-        return new_trip
+
+            await self.repository.flush()
+            await self.repository.commit()
+            await self.repository.refresh(new_trip)
+
+            return new_trip
+        except Exception:
+            await self.repository.rollback()
+            raise
 
     async def list_trips(self) -> list[Trip]:
         return await self.repository.get_all()

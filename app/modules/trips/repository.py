@@ -12,6 +12,18 @@ class TripRepository:
         self.session.add(trip)
         return trip
 
+    async def flush(self) -> None:
+        await self.session.flush()
+
+    async def commit(self) -> None:
+        await self.session.commit()
+
+    async def rollback(self) -> None:
+        await self.session.rollback()
+
+    async def refresh(self, trip: Trip) -> None:
+        await self.session.refresh(trip)
+
     async def get_all(self) -> list[Trip]:
         result = await self.session.execute(select(Trip))
         return list(result.scalars().all())
