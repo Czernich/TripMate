@@ -7,4 +7,6 @@ app = FastAPI()
 app.include_router(health.router)
 app.include_router(trips.router)
 
+
 register_exception_handlers(app)
+
