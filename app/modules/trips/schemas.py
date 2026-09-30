@@ -4,17 +4,21 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class TripBase(BaseModel):
-    name: str = Field(..., min_length=1, description="Trip name, cannot be empty")
-    destination: str
+    name: str = Field(
+        ..., min_length=1, max_length=255, description="Trip name, cannot be empty"
+    )
+    destination: str = Field(
+        ..., min_length=1, max_length=255, description="Trip name, cannot be empty"
+    )
     start_date: date
     end_date: date
 
-    @field_validator("name")
+    @field_validator("name", "destination")
     @classmethod
     def name_not_blank(cls, value: str) -> str:
         value = value.strip()
         if not value:
-            raise ValueError("name cannot be empty")
+            raise ValueError("value cannot be blank")
         return value
 
     @model_validator(mode="after")
