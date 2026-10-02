@@ -354,13 +354,10 @@ To create an empty migration, run locally with the virtual environment activated
 python -m alembic revision -m "describe schema change"
 ```
 
-Fill in `upgrade()` and `downgrade()` in the generated file, then rebuild
-the image and apply the migration using the commands above.
-Commit the migration file to Git.
+Fill in `upgrade()` and `downgrade()`, then rebuild the image and apply
+the migration using the commands above. Commit the migration file to Git.
 
-The initial migration is an empty baseline. Autogeneration is not configured yet.
-
----
+Models are imported in `app/models/__init__.py`. Register new models there
 
 # External Integrations
 
