@@ -13,7 +13,7 @@ annotated-types==0.7.0
 anyio==4.12.1
     # via
     #   httpx
-    #   starlette
+    #   starlettegit
     #   watchfiles
 asyncpg==0.31.0
     # via -r requirements.in
@@ -45,12 +45,13 @@ idna==3.19
     # via
     #   anyio
     #   httpx
-mako==1.4.1
+mako==1.4.3
     # via alembic
 markupsafe==3.0.3
     # via mako
 pydantic==2.13.5
     # via
+    #   -r requirements.in
     #   fastapi
     #   pydantic-settings
 pydantic-core==2.46.5
