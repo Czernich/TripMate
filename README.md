@@ -333,29 +333,35 @@ Not introduced yet. SQLAlchemy is planned for a later stage.
 ## Migrations
 
 Alembic uses the database settings from `app.settings.settings_db`.
-Migration files are stored in `alembic/versions/`.
+Migration commands run through Docker Compose using the Makefile.
 
-Build the application image and apply pending migrations:
+Apply pending migrations:
 
 ```bash
-docker compose build trip_mate
-docker compose run --rm trip_mate python -m alembic upgrade head
+make migrate
 ```
+
+After updating SQLAlchemy models, generate a migration:
+
+```bash
+make migration message="describe schema change"
+```
+
+The generated file is saved locally in `alembic/versions/`.
+Review its `upgrade()` and `downgrade()` functions, then `make migrate`.
+
 
 Check the current database revision:
 
 ```bash
-docker compose run --rm trip_mate python -m alembic current
+make current-revision
 ```
 
-To create an empty migration, run locally with the virtual environment activated:
+Show migration history:
 
 ```bash
-python -m alembic revision -m "describe schema change"
+make migration-history
 ```
-
-Fill in `upgrade()` and `downgrade()`, then rebuild the image and apply
-the migration using the commands above. Commit the migration file to Git.
 
 Models are imported in `app/models/__init__.py`. Register new models there
 
