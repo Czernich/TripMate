@@ -14,8 +14,11 @@ def get_trip_repository(session: SessionDep) -> TripRepository:
     return TripRepository(session)
 
 
-SessionServicce = Annotated[TripRepository, Depends(get_trip_repository)]
+RepositoryDep = Annotated[TripRepository, Depends(get_trip_repository)]
 
 
-def get_trip_service(session: SessionServicce) -> TripService:
-    return TripService(session)
+def get_trip_service(repository: RepositoryDep) -> TripService:
+    return TripService(repository)
+
+
+SessionService = Annotated[TripService, Depends(get_trip_service)]
