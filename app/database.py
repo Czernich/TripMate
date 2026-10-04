@@ -1,8 +1,10 @@
 from collections.abc import AsyncGenerator
 
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
+from app.exceptions import DatabaseUnavailableException
 from app.settings import settings_db
 
 
@@ -20,6 +22,9 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         try:
             yield session
             await session.commit()
+        except (OperationalError, OSError) as exc:
+            await session.rollback()
+            raise DatabaseUnavailableException() from exc
         except Exception:
             await session.rollback()
             raise
