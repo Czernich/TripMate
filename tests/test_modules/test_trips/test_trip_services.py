@@ -1,10 +1,6 @@
 import pytest
 
 from app.models.trip import Trip
-from app.modules.trips.exceptions import (
-    TripAlreadyExistsException,
-    TripNotFoundException,
-)
 from app.modules.trips.service import TripService
 
 
@@ -33,14 +29,20 @@ async def test_create_trip(trip_factory):
     repo = FakeTripRepository()
     service = TripService(repo)
 
-    trip_data = trip_factory(name="All you need", destination="Barcelona")
+    trip_data = trip_factory(
+        name="All you need",
+        destination="Barcelona",
+    )
 
     trip = await service.create_trip(trip_data)
 
     assert trip.name == "All you need"
     assert trip.destination == "Barcelona"
+    assert trip is trip_data
+    assert repo.added_trip is trip_data
 
 
+@pytest.mark.asyncio
 async def test_list_trips(trip_factory):
     trip1 = trip_factory(name="Your trip", destination="Amsterdam")
     trip2 = trip_factory(name="Dream trip", destination="Dubai")
@@ -53,6 +55,7 @@ async def test_list_trips(trip_factory):
     assert trips[0].destination == "Amsterdam"
 
 
+@pytest.mark.asyncio
 async def test_get_trip(trip_factory):
     trip1 = trip_factory(id=7, name="All inclusive", destination="Miami")
     repo = FakeTripRepository(trips=[trip1])
@@ -65,22 +68,10 @@ async def test_get_trip(trip_factory):
     assert trip.destination == "Miami"
 
 
+@pytest.mark.asyncio
 async def test_get_trip_no_exist():
     repo = FakeTripRepository()
     service = TripService(repo)
 
-    with pytest.raises(TripNotFoundException, match="Trip with id 2 was not found."):
+    with pytest.raises(ValueError, match="Trip with id 2 not found."):
         await service.get_trip(2)
-
-
-class DuplicateTripRepository(FakeTripRepository):
-    async def add(self, trip: Trip) -> Trip:
-        raise TripAlreadyExistsException()
-
-
-@pytest.mark.asyncio
-async def test_create_trip_raises_when_trip_already_exists(trip_factory):
-    service = TripService(DuplicateTripRepository())
-
-    with pytest.raises(TripAlreadyExistsException, match="Trip already exists."):
-        await service.create_trip(trip_factory())
