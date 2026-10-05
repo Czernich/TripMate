@@ -1,5 +1,7 @@
+import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.database import Base, engine
@@ -22,7 +24,10 @@ async def client():
 
 
 @pytest_asyncio.fixture(autouse=True)
-async def reset_database_schema():
+async def reset_database_schema(request: pytest.FixtureRequest):
+    if request.node.get_closest_marker("migration"):
+        yield
+        return
     ensure_test_database()
     async with engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
@@ -46,3 +51,15 @@ async def db_session(
         async with session_factory() as session:
             yield session
         await transaction.rollback()
+
+
+@pytest_asyncio.fixture
+async def clean_migration_database():
+    ensure_test_database()
+    async with engine.begin() as connection:
+        await connection.execute(text("DROP SCHEMA public CASCADE"))
+        await connection.execute(text("CREATE SCHEMA public"))
+    yield
+    async with engine.begin() as connection:
+        await connection.execute(text("DROP SCHEMA public CASCADE"))
+        await connection.execute(text("CREATE SCHEMA public"))
