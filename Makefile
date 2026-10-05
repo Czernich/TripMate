@@ -1,4 +1,4 @@
-.PHONY: init deps-compile deps-sync setup down up logs restart
+.PHONY: init deps-compile deps-sync setup down up logs restart migration migrate current-revision migration-history
 
 # Direct system setup: env file, pre-commit hooks, and python tools
 init:
@@ -33,3 +33,19 @@ logs:
 # Restart all containers
 restart:
 	docker compose down && docker compose up -d
+
+# Generate a migration from model changes
+migration:
+	docker compose run --build --rm trip_mate python -m alembic revision --autogenerate -m "$(message)"
+
+# Build the app image and apply pending migrations
+migrate:
+	docker compose run --build --rm trip_mate python -m alembic upgrade head
+
+# Show the current database revision
+current-revision:
+	docker compose run --rm trip_mate python -m alembic current
+
+# Show migration history
+migration-history:
+	docker compose run --rm trip_mate python -m alembic history
