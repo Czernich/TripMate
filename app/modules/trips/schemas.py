@@ -8,14 +8,17 @@ class TripBase(BaseModel):
         ..., min_length=1, max_length=255, description="Trip name, cannot be empty"
     )
     destination: str = Field(
-        ..., min_length=1, max_length=255, description="Trip name, cannot be empty"
+        ...,
+        min_length=1,
+        max_length=255,
+        description="Destination name, cannot be empty",
     )
     start_date: date
     end_date: date
 
     @field_validator("name", "destination")
     @classmethod
-    def name_not_blank(cls, value: str) -> str:
+    def strip_and_validate_text(cls, value: str) -> str:
         value = value.strip()
         if not value:
             raise ValueError("value cannot be blank")
