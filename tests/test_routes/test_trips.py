@@ -1,32 +1,41 @@
-from datetime import date
-
 import pytest
 
 from app.database import get_db
 from app.exceptions import DatabaseUnavailableException
 from app.main import app
-from app.models.trip import Trip
+from tests.factories import TripFactory
 
 
-async def test_get_trip_returns_200_with_persisted_fields(client, db_session):
-    trip = Trip(
-        name="Summer in Rome",
-        destination="Rome",
-        start_date=date(2026, 7, 1),
-        end_date=date(2026, 7, 10),
-    )
-    db_session.add(trip)
-    await db_session.flush()
-    await db_session.refresh(trip)
-
+@pytest.fixture
+def use_test_session(db_session):
     async def override_get_db():
         yield db_session
 
     app.dependency_overrides[get_db] = override_get_db
-    try:
-        response = await client.get(f"/trips/{trip.id}")
-    finally:
-        app.dependency_overrides.pop(get_db, None)
+    TripFactory._meta.sqlalchemy_session = db_session
+    yield
+    TripFactory._meta.sqlalchemy_session = None
+    app.dependency_overrides.pop(get_db, None)
+
+
+@pytest.fixture
+def database_unavailable():
+    async def override_get_db():
+        raise DatabaseUnavailableException()
+
+    app.dependency_overrides[get_db] = override_get_db
+    yield
+    app.dependency_overrides.pop(get_db, None)
+
+
+async def test_get_trip_returns_200_with_persisted_fields(
+    client, db_session, use_test_session
+):
+    trip = TripFactory()
+    await db_session.flush()
+    await db_session.refresh(trip)
+
+    response = await client.get(f"/trips/{trip.id}")
 
     assert response.status_code == 200
     assert response.json() == {
@@ -38,38 +47,34 @@ async def test_get_trip_returns_200_with_persisted_fields(client, db_session):
     }
 
 
-async def test_get_trip_returns_404_when_missing(client, db_session):
-    async def override_get_db():
-        yield db_session
-
-    app.dependency_overrides[get_db] = override_get_db
-    try:
-        response = await client.get("/trips/999999")
-    finally:
-        app.dependency_overrides.pop(get_db, None)
+async def test_get_trip_returns_404_when_missing(client):
+    response = await client.get("/trips/999999")
 
     assert response.status_code == 404
-    body = response.json()
-    assert body["error"]["code"] == "TRIP_NOT_FOUND"
-    assert "999999" in body["error"]["message"]
+    assert response.json() == {
+        "error": {
+            "code": "TRIP_NOT_FOUND",
+            "message": "Trip with id 999999 was not found.",
+        }
+    }
 
 
 @pytest.mark.parametrize("trip_id", ["abc", "1.5", "0", "-5"])
 async def test_get_trip_returns_422_for_invalid_id(client, trip_id):
     response = await client.get(f"/trips/{trip_id}")
+
     assert response.status_code == 422
 
 
-async def test_get_trip_returns_503_when_database_unavailable(client):
-    async def override_get_db_unavailable():
-        raise DatabaseUnavailableException()
-
-    app.dependency_overrides[get_db] = override_get_db_unavailable
-    try:
-        response = await client.get("/trips/1")
-    finally:
-        app.dependency_overrides.pop(get_db, None)
+async def test_get_trip_returns_503_when_database_unavailable(
+    client, database_unavailable
+):
+    response = await client.get("/trips/1")
 
     assert response.status_code == 503
-    body = response.json()
-    assert body["error"]["code"] == "SERVICE_UNAVAILABLE"
+    assert response.json() == {
+        "error": {
+            "code": "SERVICE_UNAVAILABLE",
+            "message": "Database is currently unavailable. Please try again later.",
+        }
+    }
