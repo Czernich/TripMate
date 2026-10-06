@@ -8,8 +8,6 @@ from app.models.trip import Trip
 class TripFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = Trip
-        sqlalchemy_session = None
-        sqlalchemy_session_persistence = None
 
     name = "Summer in Rome"
     destination = "Rome"

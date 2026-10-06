@@ -9,13 +9,11 @@ from tests.factories import TripFactory
 @pytest.fixture
 async def saved_trip_id():
     async with SessionLocal() as session:
-        TripFactory._meta.sqlalchemy_session = session
-        trip = TripFactory()
+        trip = TripFactory.build()
+        session.add(trip)
         await session.commit()
         await session.refresh(trip)
-        trip_id = trip.id
-    TripFactory._meta.sqlalchemy_session = None
-    return trip_id
+        return trip.id
 
 
 @pytest.fixture
