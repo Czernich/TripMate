@@ -1,21 +1,21 @@
 import pytest
 
-from app.database import get_db
+from app.database import SessionLocal, get_db
 from app.exceptions import DatabaseUnavailableException
 from app.main import app
 from tests.factories import TripFactory
 
 
 @pytest.fixture
-def use_test_session(db_session):
-    async def override_get_db():
-        yield db_session
-
-    app.dependency_overrides[get_db] = override_get_db
-    TripFactory._meta.sqlalchemy_session = db_session
-    yield
+async def saved_trip_id():
+    async with SessionLocal() as session:
+        TripFactory._meta.sqlalchemy_session = session
+        trip = TripFactory()
+        await session.commit()
+        await session.refresh(trip)
+        trip_id = trip.id
     TripFactory._meta.sqlalchemy_session = None
-    app.dependency_overrides.pop(get_db, None)
+    return trip_id
 
 
 @pytest.fixture
@@ -28,18 +28,12 @@ def database_unavailable():
     app.dependency_overrides.pop(get_db, None)
 
 
-async def test_get_trip_returns_200_with_persisted_fields(
-    client, db_session, use_test_session
-):
-    trip = TripFactory()
-    await db_session.flush()
-    await db_session.refresh(trip)
-
-    response = await client.get(f"/trips/{trip.id}")
+async def test_get_trip_returns_200_with_persisted_fields(client, saved_trip_id):
+    response = await client.get(f"/trips/{saved_trip_id}")
 
     assert response.status_code == 200
     assert response.json() == {
-        "id": trip.id,
+        "id": saved_trip_id,
         "name": "Summer in Rome",
         "destination": "Rome",
         "start_date": "2026-07-01",
