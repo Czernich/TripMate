@@ -8,7 +8,6 @@ from app.main import app
 from app.models.trip import Trip
 
 
-@pytest.mark.asyncio
 async def test_get_trip_returns_200_with_persisted_fields(client, db_session):
     trip = Trip(
         name="Summer in Rome",
@@ -39,7 +38,6 @@ async def test_get_trip_returns_200_with_persisted_fields(client, db_session):
     }
 
 
-@pytest.mark.asyncio
 async def test_get_trip_returns_404_when_missing(client, db_session):
     async def override_get_db():
         yield db_session
@@ -56,14 +54,12 @@ async def test_get_trip_returns_404_when_missing(client, db_session):
     assert "999999" in body["error"]["message"]
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize("trip_id", ["abc", "1.5", "0", "-5"])
 async def test_get_trip_returns_422_for_invalid_id(client, trip_id):
     response = await client.get(f"/trips/{trip_id}")
     assert response.status_code == 422
 
 
-@pytest.mark.asyncio
 async def test_get_trip_returns_503_when_database_unavailable(client):
     async def override_get_db_unavailable():
         raise DatabaseUnavailableException()
