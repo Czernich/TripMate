@@ -1,3 +1,5 @@
+from unittest.mock import AsyncMock
+
 import pytest
 
 from app.models.trip import Trip
@@ -8,11 +10,6 @@ class FakeTripRepository:
     def __init__(self, trips: list[Trip] | None = None):
         self.trips = trips or []
         self.added_trip: Trip | None = None
-
-        self.flushed = False
-        self.committed = False
-        self.rolled_back = False
-        self.refreshed = False
 
     def add(self, trip: Trip) -> Trip:
         self.added_trip = trip
@@ -49,7 +46,9 @@ class FailingCommitTripRepository(FakeTripRepository):
 @pytest.mark.asyncio
 async def test_create_trip_persists_transaction(trip_factory):
     repo = FakeTripRepository()
-    service = TripService(repo)
+    session = AsyncMock()
+
+    service = TripService(repo, session)
 
     trip_data = trip_factory(
         name="All you need",
@@ -60,10 +59,9 @@ async def test_create_trip_persists_transaction(trip_factory):
 
     assert trip is trip_data
     assert repo.added_trip is trip_data
-    assert repo.flushed is True
-    assert repo.committed is True
-    assert repo.refreshed is True
-    assert repo.rolled_back is False
+
+    session.flush.assert_awaited_once()
+    session.refresh.assert_awaited_once_with(trip_data)
 
 
 @pytest.mark.asyncio
@@ -99,19 +97,3 @@ async def test_get_trip_no_exist():
 
     with pytest.raises(ValueError, match="Trip with id 2 not found."):
         await service.get_trip(2)
-
-
-@pytest.mark.asyncio
-async def test_create_trip_rolls_back_on_failure(trip_factory):
-    repo = FailingCommitTripRepository()
-    service = TripService(repo)
-
-    trip = trip_factory()
-
-    with pytest.raises(RuntimeError, match="commit failed"):
-        await service.create_trip(trip)
-
-    assert repo.flushed is True
-    assert repo.committed is False
-    assert repo.rolled_back is True
-    assert repo.refreshed is False

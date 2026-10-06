@@ -1,23 +1,25 @@
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.models.trip import Trip
 from app.modules.trips.repository import TripRepository
 
 
 class TripService:
-    def __init__(self, repository: TripRepository):
+    def __init__(
+        self,
+        repository: TripRepository,
+        session: AsyncSession,
+    ) -> None:
         self.repository = repository
+        self.session = session
 
     async def create_trip(self, trip: Trip) -> Trip:
-        try:
-            new_trip = self.repository.add(trip)
+        new_trip = self.repository.add(trip)
 
-            await self.repository.flush()
-            await self.repository.commit()
-            await self.repository.refresh(new_trip)
+        await self.session.flush()
+        await self.session.refresh(new_trip)
 
-            return new_trip
-        except Exception:
-            await self.repository.rollback()
-            raise
+        return new_trip
 
     async def list_trips(self) -> list[Trip]:
         return await self.repository.get_all()
