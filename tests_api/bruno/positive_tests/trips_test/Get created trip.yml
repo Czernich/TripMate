@@ -1,0 +1,44 @@
+info:
+  name: Get created trip
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{baseUrl}}/trips/{{tripId}}"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        const tripId = bru.getVar("tripId");
+
+        if (!Number.isInteger(tripId) || tripId <= 0) {
+          throw new Error("Run Create trip successfully first");
+        }
+    - type: tests
+      code: |-
+        test("GET return 200", function () {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Response return trip", function () {
+          expect(res.getBody().id).to.equal(bru.getVar("tripId"));
+        });
+
+        test("Return data saved by POST", function () {
+          const trip = res.getBody();
+
+          expect(trip.name).to.equal("Barcelona Trip");
+          expect(trip.destination).to.equal("Barcelona");
+          expect(trip.start_date).to.equal("2026-09-10");
+          expect(trip.end_date).to.equal("2026-09-15");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
