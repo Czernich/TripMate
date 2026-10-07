@@ -332,9 +332,38 @@ Not introduced yet. SQLAlchemy is planned for a later stage.
 
 ## Migrations
 
-Not introduced yet. Alembic is planned as part of the initial setup tasks.
+Alembic uses the database settings from `app.settings.settings_db`.
+Migration commands run through Docker Compose using the Makefile.
 
----
+Apply pending migrations:
+
+```bash
+make migrate
+```
+
+After updating SQLAlchemy models, generate a migration:
+
+```bash
+make migration message="describe schema change"
+```
+
+The generated file is saved locally in `alembic/versions/`.
+Review its `upgrade()` and `downgrade()` functions, then `make migrate`.
+
+
+Check the current database revision:
+
+```bash
+make current-revision
+```
+
+Show migration history:
+
+```bash
+make migration-history
+```
+
+Models are imported in `app/models/__init__.py`. Register new models there
 
 # External Integrations
 
