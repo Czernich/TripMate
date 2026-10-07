@@ -1,6 +1,6 @@
 from fastapi import status
 
-from app.exceptions import AppBaseException
+from app.exceptions.base import AppBaseException
 
 
 class TripException(AppBaseException):
