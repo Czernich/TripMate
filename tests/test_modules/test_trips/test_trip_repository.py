@@ -10,17 +10,18 @@ from app.modules.trips.repository import TripRepository
 async def test_add_adds_trip_to_database(db_session: AsyncSession, trip_factory):
     repository = TripRepository(db_session)
     trip = trip_factory()
-    repository.add(trip)
-    await db_session.flush()
 
+    result = await repository.add(trip)
+
+    assert result is trip
     assert trip.id is not None
 
     statement = select(Trip).where(Trip.id == trip.id)
-    db_trip = await db_session.scalar(statement)
+    dp_trip = await db_session.scalar(statement)
 
-    assert db_trip is not None
-    assert db_trip.id == trip.id
-    assert db_trip.name == "All inclusive"
+    assert dp_trip is not None
+    assert dp_trip.id == trip.id
+    assert dp_trip.name == "All inclusive"
 
 
 @pytest.mark.asyncio

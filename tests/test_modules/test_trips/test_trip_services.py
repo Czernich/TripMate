@@ -1,5 +1,3 @@
-from unittest.mock import AsyncMock
-
 import pytest
 
 from app.models.trip import Trip
@@ -11,22 +9,10 @@ class FakeTripRepository:
         self.trips = trips or []
         self.added_trip: Trip | None = None
 
-    def add(self, trip: Trip) -> Trip:
+    async def add(self, trip: Trip) -> Trip:
         self.added_trip = trip
         self.trips.append(trip)
         return trip
-
-    async def flush(self) -> None:
-        self.flushed = True
-
-    async def commit(self) -> None:
-        self.committed = True
-
-    async def rollback(self) -> None:
-        self.rolled_back = True
-
-    async def refresh(self, trip: Trip) -> None:
-        self.refreshed = True
 
     async def get_all(self) -> list[Trip]:
         return self.trips
@@ -38,17 +24,10 @@ class FakeTripRepository:
         return None
 
 
-class FailingCommitTripRepository(FakeTripRepository):
-    async def commit(self) -> None:
-        raise RuntimeError("commit failed")
-
-
 @pytest.mark.asyncio
-async def test_create_trip_persists_transaction(trip_factory):
+async def test_create_trip(trip_factory):
     repo = FakeTripRepository()
-    session = AsyncMock()
-
-    service = TripService(repo, session)
+    service = TripService(repo)
 
     trip_data = trip_factory(
         name="All you need",
@@ -57,11 +36,10 @@ async def test_create_trip_persists_transaction(trip_factory):
 
     trip = await service.create_trip(trip_data)
 
+    assert trip.name == "All you need"
+    assert trip.destination == "Barcelona"
     assert trip is trip_data
     assert repo.added_trip is trip_data
-
-    session.flush.assert_awaited_once()
-    session.refresh.assert_awaited_once_with(trip_data)
 
 
 @pytest.mark.asyncio

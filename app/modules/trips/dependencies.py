@@ -27,11 +27,9 @@ TripRepositoryDep = Annotated[
 
 def get_trip_service(
     repository: TripRepositoryDep,
-    session: SessionDep,
 ) -> TripService:
     return TripService(
         repository=repository,
-        session=session,
     )
 
 
