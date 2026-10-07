@@ -1,7 +1,11 @@
 from datetime import date
 from typing import Annotated
 
-from pydantic import BaseModel, Field, field_validator, model_validator, StringConstraints
+from pydantic import (
+    BaseModel,
+    StringConstraints,
+    model_validator,
+)
 
 TrimmedText255 = Annotated[
     str,
@@ -11,6 +15,7 @@ TrimmedText255 = Annotated[
         max_length=255,
     ),
 ]
+
 
 class TripBase(BaseModel):
     name: TrimmedText255
