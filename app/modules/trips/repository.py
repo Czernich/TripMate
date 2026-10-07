@@ -8,8 +8,11 @@ class TripRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    def add(self, trip: Trip) -> Trip:
+    async def add(self, trip: Trip) -> Trip:
         self.session.add(trip)
+
+        await self.session.flush()
+        await self.session.refresh(trip)
         return trip
 
     async def get_all(self) -> list[Trip]:

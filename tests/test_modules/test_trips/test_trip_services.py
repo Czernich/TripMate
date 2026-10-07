@@ -9,7 +9,7 @@ class FakeTripRepository:
         self.trips = trips or []
         self.added_trip: Trip | None = None
 
-    def add(self, trip: Trip) -> Trip:
+    async def add(self, trip: Trip) -> Trip:
         self.added_trip = trip
         self.trips.append(trip)
         return trip
@@ -24,16 +24,22 @@ class FakeTripRepository:
         return None
 
 
-def test_create_trip(trip_factory):
+@pytest.mark.asyncio
+async def test_create_trip(trip_factory):
     repo = FakeTripRepository()
     service = TripService(repo)
 
-    trip_data = trip_factory(name="All you need", destination="Barcelona")
+    trip_data = trip_factory(
+        name="All you need",
+        destination="Barcelona",
+    )
 
-    trip = service.create_trip(trip_data)
+    trip = await service.create_trip(trip_data)
 
     assert trip.name == "All you need"
     assert trip.destination == "Barcelona"
+    assert trip is trip_data
+    assert repo.added_trip is trip_data
 
 
 @pytest.mark.asyncio
