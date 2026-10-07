@@ -14,6 +14,7 @@ def test_trip_create_valid():
         end_date=date(2026, 9, 15),
     )
     assert trip.name == "Barcelona Trip"
+    assert trip.destination == "Barcelona"
 
 
 def test_trip_create_trims_text_fields():
@@ -129,3 +130,15 @@ def test_trip_detail_valid():
     assert trip.id == 1
     assert trip.name == "Barcelona Trip"
     assert trip.destination == "Barcelona"
+
+
+def test_trip_create_validates_max_length_after_trimming():
+    trip = TripCreate(
+        name="  " + "a" * 255 + "  ",
+        destination="  " + "b" * 255 + "  ",
+        start_date=date(2026, 9, 10),
+        end_date=date(2026, 9, 15),
+    )
+
+    assert trip.name == "a" * 255
+    assert trip.destination == "b" * 255

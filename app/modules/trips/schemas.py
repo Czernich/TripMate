@@ -1,28 +1,22 @@
 from datetime import date
+from typing import Annotated
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator, StringConstraints
 
-
-class TripBase(BaseModel):
-    name: str = Field(
-        ..., min_length=1, max_length=255, description="Trip name, cannot be empty"
-    )
-    destination: str = Field(
-        ...,
+TrimmedText255 = Annotated[
+    str,
+    StringConstraints(
+        strip_whitespace=True,
         min_length=1,
         max_length=255,
-        description="Destination name, cannot be empty",
-    )
+    ),
+]
+
+class TripBase(BaseModel):
+    name: TrimmedText255
+    destination: TrimmedText255
     start_date: date
     end_date: date
-
-    @field_validator("name", "destination")
-    @classmethod
-    def strip_and_validate_text(cls, value: str) -> str:
-        value = value.strip()
-        if not value:
-            raise ValueError("value cannot be blank")
-        return value
 
     @model_validator(mode="after")
     def check_dates(self) -> "TripBase":
