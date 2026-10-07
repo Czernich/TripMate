@@ -1,6 +1,7 @@
 import pytest
 
 from app.models.trip import Trip
+from app.modules.trips.exceptions import TripNotFoundException
 from app.modules.trips.service import TripService
 
 
@@ -67,5 +68,5 @@ async def test_get_trip_no_exist():
     repo = FakeTripRepository()
     service = TripService(repo)
 
-    with pytest.raises(ValueError, match="Trip with id 2 not found."):
+    with pytest.raises(TripNotFoundException, match="Trip with id 2 was not found."):
         await service.get_trip(2)
