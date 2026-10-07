@@ -568,6 +568,7 @@ Application Logic (in-memory storage)
 | `app/routes` | HTTP layer - FastAPI routers, request/response handling and validation |
 | `app/models` | Domain / database models |
 | `app/modules` | Application/business logic, per domain (e.g. trips), including domain schemas and validation |
+| `app/exceptions` | Exception hierarchy (`base.py`) and global error handlers (`handlers.py`) |
 
 ---
 
@@ -592,19 +593,56 @@ All custom application errors share a uniform structure:
 
 ## API Error Format
 
-Standard JSON response structure returned by custom application exceptions:
+Every error response uses the same JSON shape:
 
 ```json
 {
-  "code": "TRIP_ALREADY_EXISTS",
-  "message": "Trip already exists."
+  "error": {
+    "code": "TRIP_NOT_FOUND",
+    "message": "Trip with id 42 was not found."
+  }
+}
+```
+
+Validation errors (`422`, code `VALIDATION_ERROR`) additionally contain a `details` list with the Pydantic errors:
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid request payload.",
+    "details": [
+      {
+        "type": "int_parsing",
+        "loc": ["path", "trip_id"],
+        "msg": "Input should be a valid integer, unable to parse string as an integer",
+        "input": "abc"
+      }
+    ]
+  }
+}
+```
+
+Unhandled exceptions return `500` with a generic message. The stack trace is only written to the server log and is never sent to the client:
+
+```json
+{
+  "error": {
+    "code": "INTERNAL_SERVER_ERROR",
+    "message": "Internal server error. Please try again later."
+  }
 }
 ```
 
 ## Domain Errors
 
-Validation errors (empty trip name, invalid date range) currently return `422 Unprocessable Entity` via Pydantic validation. A non-existent trip returns `404 Not Found`.
+Validation errors (empty trip name, invalid date range, invalid path parameter) return `422 Unprocessable Entity` with the `VALIDATION_ERROR` code. A non-existent trip returns `404 Not Found` with the `TRIP_NOT_FOUND` code.
 
+## Code Layout
+
+* `app/exceptions/base.py` - `AppBaseException`, the base class of all application exceptions.
+* `app/exceptions/handlers.py` - exception handlers registered in `app/main.py` via `register_exception_handlers`.
+* `app/modules/<domain>/exceptions.py` - domain-specific exceptions (e.g. trips).
 
 
 # Future Improvements
