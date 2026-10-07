@@ -1,7 +1,10 @@
 import pytest
 
 from app.models.trip import Trip
-from app.modules.trips.exceptions import TripNotFoundException
+from app.modules.trips.exceptions import (
+    TripAlreadyExistsException,
+    TripNotFoundException,
+)
 from app.modules.trips.service import TripService
 
 
@@ -70,3 +73,15 @@ async def test_get_trip_no_exist():
 
     with pytest.raises(TripNotFoundException, match="Trip with id 2 was not found."):
         await service.get_trip(2)
+
+
+class DuplicateTripRepository(FakeTripRepository):
+    def add(self, trip: Trip) -> Trip:
+        raise TripAlreadyExistsException()
+
+
+def test_create_trip_raises_when_trip_already_exists(trip_factory):
+    service = TripService(DuplicateTripRepository())
+
+    with pytest.raises(TripAlreadyExistsException, match="Trip already exists."):
+        service.create_trip(trip_factory())
