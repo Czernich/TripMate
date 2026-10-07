@@ -2,7 +2,7 @@
 
 # Direct system setup: env file, pre-commit hooks, and python tools
 init:
-	@test -f .env || cp sample.env .env
+	@test -f .env || cp .env.example .env
 	pre-commit install
 	python3 -m pip install --upgrade pip pip-tools
 
@@ -14,25 +14,26 @@ deps-compile:
 deps-sync:
 	pip-sync requirements.txt
 
-# Built docker image
+# Build the application image
 setup:
-	docker build -t trip_mate .
+	docker compose build trip_mate
 
 # Stop docker compose
 down:
 	docker compose down
 
-# Start docker compose in detached mode
+# Start the application and its database
 up:
-	docker compose up -d
+	docker compose up -d trip_mate
 
 # Follow logs from app container
 logs:
 	docker compose logs -f trip_mate
 
-# Restart all containers
+# Recreate the application environment
 restart:
-	docker compose down && docker compose up -d
+	docker compose down
+	docker compose up -d trip_mate
 
 # Generate a migration from model changes
 migration:
