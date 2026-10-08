@@ -17,3 +17,9 @@ class AppBaseException(Exception):
         if error_code:
             self.error_code = error_code
         super().__init__(self.message)
+
+
+class DatabaseUnavailableException(AppBaseException):
+    status_code: int = status.HTTP_503_SERVICE_UNAVAILABLE
+    error_code: str = "SERVICE_UNAVAILABLE"
+    message: str = "Database is currently unavailable. Please try again later."
