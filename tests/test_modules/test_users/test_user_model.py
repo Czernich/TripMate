@@ -31,4 +31,3 @@ async def test_creating_users_with_duplicate_emails_raises_integrity_error(
 
     with pytest.raises(IntegrityError):
         await db_session.flush()
-    await db_session.rollback()
