@@ -42,10 +42,8 @@ class Payload(BaseModel):
 
     @field_validator("name")
     @classmethod
-    def name_not_blank(cls, value: str) -> str:
-        if not value.strip():
-            raise ValueError("name cannot be blank")
-        return value
+    def always_fail(cls, value: str) -> str:
+        raise ValueError("invalid name")
 
 
 @pytest.fixture
