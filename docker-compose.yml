@@ -53,7 +53,10 @@ services:
     depends_on:
       db_tests:
         condition: service_healthy
-    command: pytest -v
-
+    command: >
+      sh -c "
+      alembic upgrade head &&
+      pytest -v
+      "
 volumes:
   postgres_data:
