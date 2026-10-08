@@ -41,7 +41,6 @@ async def test_create_trip(trip_factory):
     assert trip.destination == "Barcelona"
 
 
-@pytest.mark.asyncio
 async def test_list_trips(trip_factory):
     trip1 = trip_factory(name="Your trip", destination="Amsterdam")
     trip2 = trip_factory(name="Dream trip", destination="Dubai")
@@ -54,7 +53,6 @@ async def test_list_trips(trip_factory):
     assert trips[0].destination == "Amsterdam"
 
 
-@pytest.mark.asyncio
 async def test_get_trip(trip_factory):
     trip1 = trip_factory(id=7, name="All inclusive", destination="Miami")
     repo = FakeTripRepository(trips=[trip1])
@@ -67,7 +65,6 @@ async def test_get_trip(trip_factory):
     assert trip.destination == "Miami"
 
 
-@pytest.mark.asyncio
 async def test_get_trip_no_exist():
     repo = FakeTripRepository()
     service = TripService(repo)

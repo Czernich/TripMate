@@ -1,19 +1,19 @@
 import pytest
+import pytest_asyncio
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import SessionLocal, get_db
+from app.database import get_db
 from app.exceptions import DatabaseUnavailableException
 from app.main import app
 from tests.factories import TripFactory
 
 
-@pytest.fixture
-async def saved_trip_id():
-    async with SessionLocal() as session:
-        trip = TripFactory.build()
-        session.add(trip)
-        await session.commit()
-        await session.refresh(trip)
-        return trip.id
+@pytest_asyncio.fixture
+async def saved_trip_id(db_session: AsyncSession, override_get_db):
+    trip = TripFactory.build()
+    db_session.add(trip)
+    await db_session.flush()
+    return trip.id
 
 
 @pytest.fixture
