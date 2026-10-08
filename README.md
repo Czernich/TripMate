@@ -597,25 +597,81 @@ Application Logic (in-memory storage)
 | `app/routes` | HTTP layer - FastAPI routers, request/response handling and validation |
 | `app/models` | Domain / database models |
 | `app/modules` | Application/business logic, per domain (e.g. trips), including domain schemas and validation |
+| `app/exceptions` | Exception hierarchy (`base.py`) and global error handlers (`handlers.py`) |
 
 ---
 
 # Error Handling
 
+The application uses custom exception handling hierarchy extending `AppBaseException`. Errors raised within domain services are caught and returned as structured HTTP responses.
+
+## Custom Exceptions Standard
+
+All custom application errors share a uniform structure:
+* **`status_code`**: Corresponding HTTP status code.
+* **`error_code`**: Machine-readable string identifier for API clients.
+* **`message`**: Human-readable error description.
+
+| Exception | HTTP Status | Error Code | Default Message |
+|---|---|---|---|
+| `AppBaseException` | `500 Internal Server Error` | `INTERNAL_SERVER_ERROR` | An unexpected server error occurred. |
+| `TripNotFoundException` | `404 Not Found` | `TRIP_NOT_FOUND` | Trip not found. |
+| `TripAlreadyExistsException` | `409 Conflict` | `TRIP_ALREADY_EXISTS` | Trip already exists. |
+| `TripUnprocessableException` | `422 Unprocessable Entity` | `TRIP_UNPROCESSABLE` | The trip cannot be edited in its current state. |
+| `TripFullException` | `400 Bad Request` | `TRIP_IS_FULL` | Trip is fully booked. |
+
 ## API Error Format
+
+Every error response uses the same JSON shape:
 
 ```json
 {
-  "detail": "TODO"
+  "error": {
+    "code": "TRIP_NOT_FOUND",
+    "message": "Trip with id 42 was not found."
+  }
 }
 ```
 
-Current format: FastAPI's default `{"detail": "..."}` shape for HTTP and validation errors. A more structured, consistent error-handling strategy is planned as one of the initial setup tasks.
+Validation errors (`422`, code `VALIDATION_ERROR`) additionally contain a `details` list with the Pydantic errors:
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid request payload.",
+    "details": [
+      {
+        "type": "int_parsing",
+        "loc": ["path", "trip_id"],
+        "msg": "Input should be a valid integer, unable to parse string as an integer",
+        "input": "abc"
+      }
+    ]
+  }
+}
+```
+
+Unhandled exceptions return `500` with a generic message. The stack trace is only written to the server log and is never sent to the client:
+
+```json
+{
+  "error": {
+    "code": "INTERNAL_SERVER_ERROR",
+    "message": "Internal server error. Please try again later."
+  }
+}
+```
 
 ## Domain Errors
 
-Validation errors (empty trip name, invalid date range) currently return `422 Unprocessable Entity` via Pydantic validation. A non-existent trip returns `404 Not Found`.
+Validation errors (empty trip name, invalid date range, invalid path parameter) return `422 Unprocessable Entity` with the `VALIDATION_ERROR` code. A non-existent trip returns `404 Not Found` with the `TRIP_NOT_FOUND` code.
 
+## Code Layout
+
+* `app/exceptions/base.py` - `AppBaseException`, the base class of all application exceptions.
+* `app/exceptions/handlers.py` - exception handlers registered in `app/main.py` via `register_exception_handlers`.
+* `app/modules/<domain>/exceptions.py` - domain-specific exceptions (e.g. trips).
 
 
 # Future Improvements

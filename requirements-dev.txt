@@ -25,6 +25,10 @@ colorama==0.4.6
     #   pytest
 distlib==0.4.3
     # via virtualenv
+factory-boy==3.3.3
+    # via -r requirements-dev.in
+faker==40.41.0
+    # via factory-boy
 filelock==3.32.6
     # via
     #   python-discovery

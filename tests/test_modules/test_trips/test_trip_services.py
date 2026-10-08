@@ -1,6 +1,10 @@
 import pytest
 
 from app.models.trip import Trip
+from app.modules.trips.exceptions import (
+    TripAlreadyExistsException,
+    TripNotFoundException,
+)
 from app.modules.trips.service import TripService
 
 
@@ -9,7 +13,7 @@ class FakeTripRepository:
         self.trips = trips or []
         self.added_trip: Trip | None = None
 
-    def add(self, trip: Trip) -> Trip:
+    async def add(self, trip: Trip) -> Trip:
         self.added_trip = trip
         self.trips.append(trip)
         return trip
@@ -24,13 +28,14 @@ class FakeTripRepository:
         return None
 
 
-def test_create_trip(trip_factory):
+@pytest.mark.asyncio
+async def test_create_trip(trip_factory):
     repo = FakeTripRepository()
     service = TripService(repo)
 
     trip_data = trip_factory(name="All you need", destination="Barcelona")
 
-    trip = service.create_trip(trip_data)
+    trip = await service.create_trip(trip_data)
 
     assert trip.name == "All you need"
     assert trip.destination == "Barcelona"
@@ -64,5 +69,18 @@ async def test_get_trip_no_exist():
     repo = FakeTripRepository()
     service = TripService(repo)
 
-    with pytest.raises(ValueError, match="Trip with id 2 not found."):
+    with pytest.raises(TripNotFoundException, match="Trip with id 2 was not found."):
         await service.get_trip(2)
+
+
+class DuplicateTripRepository(FakeTripRepository):
+    async def add(self, trip: Trip) -> Trip:
+        raise TripAlreadyExistsException()
+
+
+@pytest.mark.asyncio
+async def test_create_trip_raises_when_trip_already_exists(trip_factory):
+    service = TripService(DuplicateTripRepository())
+
+    with pytest.raises(TripAlreadyExistsException, match="Trip already exists."):
+        await service.create_trip(trip_factory())

@@ -8,10 +8,10 @@ from app.modules.trips.repository import TripRepository
 async def test_add_adds_trip_to_database(db_session: AsyncSession, trip_factory):
     repository = TripRepository(db_session)
     trip = trip_factory()
-    repository.add(trip)
-    await db_session.flush()
+    await repository.add(trip)
 
     assert trip.id is not None
+    assert trip.created_at is not None
 
     statement = select(Trip).where(Trip.id == trip.id)
     db_trip = await db_session.scalar(statement)
