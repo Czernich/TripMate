@@ -10,9 +10,9 @@ class TripService:
     def __init__(self, repository: TripRepository):
         self.repository = repository
 
-    def create_trip(self, trip: Trip) -> Trip:
+    async def create_trip(self, trip: Trip) -> Trip:
         try:
-            return self.repository.add(trip)
+            return await self.repository.add(trip)
 
         except TripAlreadyExistsException:
             raise TripAlreadyExistsException()
