@@ -99,7 +99,6 @@ class DuplicateTripRepository(FakeTripRepository):
         raise TripAlreadyExistsException()
 
 
-@pytest.mark.asyncio
 async def test_create_trip_raises_when_trip_already_exists(saved_trip):
     service = TripService(DuplicateTripRepository())
 
