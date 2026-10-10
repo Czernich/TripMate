@@ -1,16 +1,17 @@
 import pytest
 
 
-async def test_get_trip_returns_200_with_persisted_fields(client, saved_trip_id):
-    response = await client.get(f"/trips/{saved_trip_id}")
+async def test_get_trip_returns_200_with_persisted_fields(client, saved_trip):
+    trip = saved_trip
+    response = await client.get(f"/trips/{trip.id}")
 
     assert response.status_code == 200
     assert response.json() == {
-        "id": saved_trip_id,
-        "name": "Summer in Rome",
-        "destination": "Rome",
-        "start_date": "2026-07-01",
-        "end_date": "2026-07-10",
+        "id": trip.id,
+        "name": trip.name,
+        "destination": trip.destination,
+        "start_date": str(trip.start_date),
+        "end_date": str(trip.end_date),
     }
 
 
