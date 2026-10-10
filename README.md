@@ -7,7 +7,7 @@ TripMate is a backend application for planning group trips.
 
 The project is developed incrementally and is intended to simulate work on a real commercial backend system. New requirements, integrations, technical problems, and architectural decisions will appear over time, the same way they would in a real product team.
 
-At this stage the repository contains a minimal, real REST API backed by in-memory storage. A persistent database, authentication, authorization, and external integrations will be introduced in later stages, once the product needs them.
+The project uses PostgreSQL for persistence, SQLAlchemy for database access, and Alembic for schema migrations. Authentication, authorization, and external integrations are planned for later stages.
 
 The application, project structure, development environment, and this documentation are expected to evolve together with the product.
 
@@ -54,7 +54,11 @@ Update this section whenever a new technology becomes part of the project.
 
 ## Database
 
-Not introduced yet. Data is currently stored in memory. PostgreSQL + SQLAlchemy + Alembic are planned for a later stage.
+Data is currently stored in PostgreSQL.
+
+- PostgreSQL
+- SQLAlchemy
+- Alembic
 
 ## Infrastructure
 
@@ -66,7 +70,10 @@ Docker and Docker Compose are used for local development. See [Docker](#docker) 
 
 ## Code Quality
 
-Not introduced yet. Ruff, mypy, and pre-commit are planned as part of the initial setup tasks.
+- Ruff
+- mypy
+- Bandit
+- pre-commit
 
 ---
 
@@ -99,8 +106,7 @@ app/routes/
     to app/modules.
 
 app/models/
-    Domain and database models (Pydantic domain objects now; SQLAlchemy models
-    once persistence is introduced).
+    SQLAlchemy ORM models defining database tables.
 
 app/modules/
     Application/business logic, grouped by domain (e.g. modules/trips/,
@@ -122,7 +128,8 @@ app/modules/
 ## Optional
 
 - Docker & Docker Compose (see [Docker](#docker))
-- `make` (once the Makefile setup task is completed)
+- Make for the `make` commands
+- Bruno for running the API collection
 
 ---
 
@@ -132,41 +139,43 @@ app/modules/
 
 ```bash
 git clone https://github.com/Czernich/TripMate.git
-cd tripmate
+cd TripMate
 ```
 
-## 2. Run with Docker Compose (recommended)
+## 2. Run with Docker Compose
 
-This starts both the API and a PostgreSQL database.
+Copy the environment template:
 
 ```bash
 cp .env.example .env
-docker compose up --build
 ```
 
-The API will be available at `http://localhost:8000`, and PostgreSQL will be reachable on `localhost:5433` (mapped from the container's internal port 5432).
-
-To stop and remove containers:
+Build the application image, apply migrations, and start the application:
 
 ```bash
-docker compose down
+make migrate
+make up
 ```
 
-## 3. Run with Docker (API only, no database)
+`make migrate` builds the application image and starts the database
+before applying migrations.
+
+The API is available at http://localhost:8000.
+
+Stop the environment:
 
 ```bash
-docker build -t trip_mate .
-docker run -p 8000:8000 trip_mate
+make down
 ```
 
-## 4. Run locally without Docker
+## 3. Run locally without Docker
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate  # on Windows: .venv\Scripts\activate
 ```
 
-## 5. Install dependencies
+## 4. Install dependencies
 
 Install the pinned dependency management tools:
 
@@ -187,7 +196,7 @@ Sync the virtual environment:
 pip-sync requirements.txt requirements-dev.txt
 ```
 
-## 6. Manage dependencies
+## 5. Manage dependencies
 
 `requirements.in` contains runtime dependencies and `requirements-dev.in` contains development dependencies.
 
@@ -214,15 +223,15 @@ pip-compile --output-file=requirements-dev.txt requirements-dev.in
 
 After changing dependencies, sync the environment using the command from the installation section.
 
-## 7. Configure environment
+## 6. Configure environment
 
 Copy `.env.example` to `.env` and adjust values as needed. See [Environment Variables](#environment-variables) for details.
 
-## 8. Start required services
+## 7. Start required services
 
 If running without Docker Compose, you'll need PostgreSQL running separately, or use the Docker Compose flow above.
 
-## 9. Run the application
+## 8. Run the application
 
 ```bash
 uvicorn app.main:app --reload
@@ -328,7 +337,8 @@ Connection pooling settings:
 
 ## ORM
 
-Not introduced yet. SQLAlchemy is planned for a later stage.
+SQLAlchemy ORM models are defined in `app/models/`.
+Asynchronous database sessions are configured in `app/database.py`.
 
 ## Migrations
 
@@ -386,14 +396,16 @@ Possible future integrations:
 Once Docker and Docker Compose are introduced, the recommended way to interact with the project is through the Makefile.
 It provides short, memorable commands for common developer tasks:
 
-- make init — copy sample.env to .env, install pre-commit hooks, and update pip-tools
-- make deps-compile — compile requirements.in to requirements.txt
-- make deps-sync — sync local virtual environment with requirements.txt
-- make setup — build the Docker image
-- make up — start the environment
-- make down — stop containers
-- make logs — follow logs from all services
-- make restart — restart the environment
+The Makefile provides shortcuts for common development tasks:
+
+- `make init` — copy `.env.example` to `.env`, install pre-commit hooks, and update pip-tools; requires local Python and pre-commit
+- `make deps-compile` — compile `requirements.in` to `requirements.txt`
+- `make deps-sync` — sync the local virtual environment with `requirements.txt`
+- `make setup` — build the application image
+- `make up` — start the application and its database
+- `make down` — stop and remove the Compose containers
+- `make logs` — follow application logs
+- `make restart` — recreate the application environment
 
 This avoids long CLI commands and keeps the workflow consistent across the team.
 
@@ -409,26 +421,41 @@ Tests reset the database schema only when `TESTING=true` and the database name
 ends with `_test`. Running pytest with the regular `.env` is rejected to avoid
 accidentally modifying the development database.
 
+## API testing with Bruno
+
+Open `tests_api/bruno` as a collection in Bruno and select the `local`
+environment. Start the application and apply migrations before sending
+requests.
+
+Run the health checks first, then Create trip followed by Get created trip.
+The create response supplies `tripId` automatically.
+Run negative examples separately.
+
+Only run requests implemented in the application version being tested.
+Pagination, PATCH, and DELETE requests are not yet verified.
+Successful create requests currently leave records in the database.
+
+See the collection documentation for details and pending scenarios.
+
+
+
 ## Tests with Docker Compose
 
-Run the test database and test suite in containers. After the test run, remove
-only the test containers. The development database and its `postgres_data`
-volume are not affected:
-
 ```bash
-(
-   docker compose up --build trip_mate_tests db_tests
-
-   docker compose rm trip_mate_tests db_tests
-
-)
+docker compose run --build --rm trip_mate_tests
 ```
+
+Compose starts `db_tests` automatically. The test runner uses `.env.test`
+and recreates the test schema before each test. The development database
+is not used.
 
 The test database has no volume, so it doesn't store any data. The test database schema is also recreated before every test.
 
 ## Testing Strategy
 
-At this stage, tests cover the HTTP layer of the `/trips` endpoints, including basic validation rules (e.g. empty trip name, end date before start date, and requesting a non-existent trip). Unit tests for isolated business logic, database tests, and external API mocks will be added as those layers are introduced.
+Tests cover health checks, schema validation, models, repositories,
+services, and dependencies. Trip endpoint tests are added alongside
+their implementations.
 
 ---
 

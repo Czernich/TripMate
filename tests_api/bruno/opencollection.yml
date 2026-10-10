@@ -1,0 +1,56 @@
+opencollection: 1.0.0
+
+info:
+  name: bruno
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+docs:
+  content: |-
+    # TripMate API testing
+
+    Start the application and PostgreSQL and apply migrations using the instructions in the repository README.
+
+    Open the collection in Bruno and select the `local` environment.
+
+    ## Environment
+
+    - `baseUrl`: local API address, default `http://127.0.0.1:8000`.
+    - `missingTripId`: a positive trip ID expected not to exist in the local database.
+
+    The Create trip request sets `tripId` automatically as a runtime variable. Do not save it as a fixed environment value.
+
+    ## Running requests
+
+    Run the health checks first, then run the supported trip requests in order:
+
+    1. **Create trip** — creates a trip and captures its ID.
+    2. **Get created trip** — reads that trip and verifies its saved values.
+
+    Run the `negative_tests` folder separately. It checks blank names, reversed dates and a missing trip.
+
+    Each successful Create trip request leaves a record in the database. Automatic cleanup is not available yet.
+
+    ## Pending scenarios
+
+    The pagination request is prepared and awaits endpoint implementation and verification. It checks bounded results and ascending ID order; the created trip may be on another page.
+
+    PATCH and DELETE requests are placeholders for the next sprint. Do not include them in the current run.
+
+    The full lifecycle scenario will be verified once these endpoints are available. Validation error code assertions must also be restored and verified after the shared exception handlers are integrated.
+  type: text/markdown
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git
