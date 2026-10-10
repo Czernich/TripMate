@@ -299,6 +299,9 @@ Keep a short overview of the main API resources. Detailed API contracts should r
 | POST | `/trips` | Create a new trip | None |
 | GET | `/trips` | List all trips | None |
 | GET | `/trips/{trip_id}` | Get a single trip by ID | None |
+| DELETE | `/trips/{trip_id}` | Permanently removes an existing trip | None |
+
+## Create a trip
 
 Example request body for `POST /trips`:
 
@@ -310,6 +313,20 @@ Example request body for `POST /trips`:
   "end_date": "2026-09-15"
 }
 ```
+## Delete a trip
+
+Example request for `DELETE /trips/{trip_id}`
+
+```http
+DELETE /trips/3
+```
+
+### Delete status code
+
+- **204 No content** - the trip was deleted successfully. The response body is empty.
+- **404 Not found** - the trip does not exist, or it was already deleted.
+- **422 Unprocessable entity** - `trip_id` is not a positive integer.
+- **503 Service unavailable** - the database is temporarily unavailable. The transaction is rolled back and no SQL or connection details are exposed.
 
 ---
 

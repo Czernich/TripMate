@@ -12,6 +12,7 @@ class FakeTripRepository:
     def __init__(self, trips: list[Trip] | None = None):
         self.trips = trips or []
         self.added_trip: Trip | None = None
+        self.removed_trip: Trip | None = None
 
     async def add(self, trip: Trip) -> Trip:
         self.added_trip = trip
@@ -27,42 +28,47 @@ class FakeTripRepository:
                 return trip
         return None
 
+    async def remove(self, trip: Trip) -> Trip:
+        self.removed_trip = trip
+        self.trips.remove(trip)
+        return trip
+
 
 @pytest.mark.asyncio
-async def test_create_trip(trip_factory):
+async def test_create_trip(saved_trip):
     repo = FakeTripRepository()
     service = TripService(repo)
 
-    trip_data = trip_factory(name="All you need", destination="Barcelona")
+    trip_data = saved_trip
 
     trip = await service.create_trip(trip_data)
 
-    assert trip.name == "All you need"
-    assert trip.destination == "Barcelona"
+    assert trip.name == "Summer in Rome"
+    assert trip.destination == "Rome"
 
 
-async def test_list_trips(trip_factory):
-    trip1 = trip_factory(name="Your trip", destination="Amsterdam")
-    trip2 = trip_factory(name="Dream trip", destination="Dubai")
+async def test_list_trips(saved_trip, second_saved_trip):
+    trip1 = saved_trip
+    trip2 = second_saved_trip
     repo = FakeTripRepository(trips=[trip1, trip2])
     service = TripService(repo)
 
     trips = await service.list_trips()
 
     assert len(trips) == 2
-    assert trips[0].destination == "Amsterdam"
+    assert trips[0].destination == "Rome"
 
 
-async def test_get_trip(trip_factory):
-    trip1 = trip_factory(id=7, name="All inclusive", destination="Miami")
+async def test_get_trip(saved_trip):
+    trip1 = saved_trip
     repo = FakeTripRepository(trips=[trip1])
     service = TripService(repo)
 
-    trip = await service.get_trip(7)
+    trip = await service.get_trip(trip1.id)
 
     assert trip is not None
-    assert trip.id == 7
-    assert trip.destination == "Miami"
+    assert trip.id == trip1.id
+    assert trip.destination == "Rome"
 
 
 async def test_get_trip_no_exist():
@@ -78,9 +84,27 @@ class DuplicateTripRepository(FakeTripRepository):
         raise TripAlreadyExistsException()
 
 
-@pytest.mark.asyncio
-async def test_create_trip_raises_when_trip_already_exists(trip_factory):
+async def test_create_trip_raises_when_trip_already_exists(saved_trip):
     service = TripService(DuplicateTripRepository())
 
     with pytest.raises(TripAlreadyExistsException, match="Trip already exists."):
-        await service.create_trip(trip_factory())
+        await service.create_trip(saved_trip)
+
+
+async def test_delete_trip_removes_trip(saved_trip):
+    trip = saved_trip
+    repo = FakeTripRepository(trips=[trip])
+    service = TripService(repo)
+
+    await service.delete_trip(trip.id)
+
+    assert repo.trips == []
+    assert repo.removed_trip is trip
+
+
+async def test_delete_trip_raises_when_trip_not_found():
+    repo = FakeTripRepository()
+    service = TripService(repo)
+
+    with pytest.raises(TripNotFoundException, match="Trip with id 2 was not found."):
+        await service.delete_trip(2)

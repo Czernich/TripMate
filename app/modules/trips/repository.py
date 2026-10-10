@@ -20,3 +20,7 @@ class TripRepository:
 
     async def get_by_id(self, trip_id: int) -> Trip | None:
         return await self.session.get(Trip, trip_id)
+
+    async def remove(self, trip: Trip) -> None:
+        await self.session.delete(trip)
+        await self.session.flush()

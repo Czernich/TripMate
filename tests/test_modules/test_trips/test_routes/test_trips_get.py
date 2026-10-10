@@ -1,41 +1,17 @@
 import pytest
-import pytest_asyncio
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.database import get_db
-from app.exceptions import DatabaseUnavailableException
-from app.main import app
-from tests.factories import TripFactory
 
 
-@pytest_asyncio.fixture
-async def saved_trip_id(db_session: AsyncSession, override_get_db):
-    trip = TripFactory.build()
-    db_session.add(trip)
-    await db_session.flush()
-    return trip.id
-
-
-@pytest.fixture
-def database_unavailable():
-    async def override_get_db():
-        raise DatabaseUnavailableException()
-
-    app.dependency_overrides[get_db] = override_get_db
-    yield
-    app.dependency_overrides.pop(get_db, None)
-
-
-async def test_get_trip_returns_200_with_persisted_fields(client, saved_trip_id):
-    response = await client.get(f"/trips/{saved_trip_id}")
+async def test_get_trip_returns_200_with_persisted_fields(client, saved_trip):
+    trip = saved_trip
+    response = await client.get(f"/trips/{trip.id}")
 
     assert response.status_code == 200
     assert response.json() == {
-        "id": saved_trip_id,
-        "name": "Summer in Rome",
-        "destination": "Rome",
-        "start_date": "2026-07-01",
-        "end_date": "2026-07-10",
+        "id": trip.id,
+        "name": trip.name,
+        "destination": trip.destination,
+        "start_date": str(trip.start_date),
+        "end_date": str(trip.end_date),
     }
 
 
