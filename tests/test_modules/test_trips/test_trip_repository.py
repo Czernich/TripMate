@@ -29,28 +29,28 @@ async def test_add_adds_trip_to_database(db_session: AsyncSession, trip_factory)
 @pytest.mark.asyncio
 async def test_get_all_returns_all_trips(db_session: AsyncSession, trip_factory):
     repository = TripRepository(db_session)
-    trip1 = trip_factory()
-    trip2 = trip_factory(name="City break", destination="Berlin")
+    trip1 = saved_trip
+    trip2 = second_saved_trip
     db_session.add_all([trip1, trip2])
     await db_session.flush()
     result = await repository.get_all()
 
     assert len(result) == 2
-    assert {trip.destination for trip in result} == {"Paris", "Berlin"}
+    assert {trip.destination for trip in result} == {"Rome", "Krakow"}
 
 
 @pytest.mark.asyncio
 async def test_get_trip_by_id_returns_correct_trip(
-    db_session: AsyncSession, trip_factory
+    db_session: AsyncSession, saved_trip
 ):
     repository = TripRepository(db_session)
-    trip1 = trip_factory()
+    trip1 = saved_trip
     db_session.add(trip1)
     await db_session.flush()
     result = await repository.get_by_id(trip1.id)
 
     assert result is not None
-    assert result.name == "All inclusive"
+    assert result.name == "Summer in Rome"
     assert result.id == trip1.id
 
 

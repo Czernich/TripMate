@@ -25,58 +25,62 @@ async def seeded_trip():
             await session.commit()
 
 
-async def test_delete_trip_returns_204(client, saved_trip_id):
-    response = await client.delete(f"/trips/{saved_trip_id}")
+async def test_delete_trip_returns_204(client, saved_trip):
+    trip = saved_trip
+    response = await client.delete(f"/trips/{trip.id}")
 
     assert response.status_code == 204
     assert response.text == ""
 
 
-async def test_delete_trip_returns_404_after_deleting(client, saved_trip_id):
-    await client.delete(f"/trips/{saved_trip_id}")
-    response = await client.get(f"/trips/{saved_trip_id}")
+async def test_delete_trip_returns_404_after_deleting(client, saved_trip):
+    trip = saved_trip
+    await client.delete(f"/trips/{trip.id}")
+    response = await client.get(f"/trips/{trip.id}")
 
     assert response.status_code == 404
     assert response.json() == {
         "error": {
             "code": "TRIP_NOT_FOUND",
-            "message": f"Trip with id {saved_trip_id} was not found.",
+            "message": f"Trip with id {trip.id} was not found.",
         }
     }
 
 
-async def test_repeated_delete_returns_404(client, saved_trip_id):
-    first = await client.delete(f"/trips/{saved_trip_id}")
+async def test_repeated_delete_returns_404(client, saved_trip):
+    trip = saved_trip
+    first = await client.delete(f"/trips/{trip.id}")
     assert first.status_code == 204
 
-    second = await client.delete(f"/trips/{saved_trip_id}")
+    second = await client.delete(f"/trips/{trip.id}")
 
     assert second.status_code == 404
     assert second.json() == {
         "error": {
             "code": "TRIP_NOT_FOUND",
-            "message": f"Trip with id {saved_trip_id} was not found.",
+            "message": f"Trip with id {trip.id} was not found.",
         }
     }
 
 
 async def test_delete_preserves_other_trips(
     client,
-    saved_trip_id,
-    second_saved_trip_id,
+    saved_trip,
+    second_saved_trip,
 ):
-    delete_response = await client.delete(f"/trips/{saved_trip_id}")
+    trip = saved_trip
+    delete_response = await client.delete(f"/trips/{trip.id}")
     assert delete_response.status_code == 204
-
-    get_response = await client.get(f"/trips/{second_saved_trip_id}")
+    trip2 = second_saved_trip
+    get_response = await client.get(f"/trips/{trip2.id}")
 
     assert get_response.status_code == 200
     assert get_response.json() == {
-        "id": second_saved_trip_id,
-        "name": "Winter in Krakow",
-        "destination": "Krakow",
-        "start_date": "2026-07-01",
-        "end_date": "2026-07-10",
+        "id": trip2.id,
+        "name": trip2.name,
+        "destination": trip2.destination,
+        "start_date": str(trip2.start_date),
+        "end_date": str(trip2.end_date),
     }
 
 

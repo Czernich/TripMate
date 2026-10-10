@@ -42,7 +42,7 @@ class FakeTripRepository:
 
 
 @pytest.mark.asyncio
-async def test_create_trip(trip_factory):
+async def test_create_trip(saved_trip):
     repo = FakeTripRepository()
     service = TripService(repo)
 
@@ -69,7 +69,7 @@ async def test_list_trips(trip_factory):
     trips = await service.list_trips()
 
     assert len(trips) == 2
-    assert trips[0].destination == "Amsterdam"
+    assert trips[0].destination == "Rome"
 
 
 @pytest.mark.asyncio
@@ -78,11 +78,11 @@ async def test_get_trip(trip_factory):
     repo = FakeTripRepository(trips=[trip1])
     service = TripService(repo)
 
-    trip = await service.get_trip(7)
+    trip = await service.get_trip(trip1.id)
 
     assert trip is not None
-    assert trip.id == 7
-    assert trip.destination == "Miami"
+    assert trip.id == trip1.id
+    assert trip.destination == "Rome"
 
 
 @pytest.mark.asyncio
@@ -100,7 +100,7 @@ class DuplicateTripRepository(FakeTripRepository):
 
 
 @pytest.mark.asyncio
-async def test_create_trip_raises_when_trip_already_exists(trip_factory):
+async def test_create_trip_raises_when_trip_already_exists(saved_trip):
     service = TripService(DuplicateTripRepository())
 
     with pytest.raises(TripAlreadyExistsException, match="Trip already exists."):
