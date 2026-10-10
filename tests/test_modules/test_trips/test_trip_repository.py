@@ -65,3 +65,17 @@ async def test_get_all_returns_empty_list_when_database_is_empty(
     result = await repository.get_all()
 
     assert result == []
+
+
+async def test_remove_trip_deletes_trip_from_database(
+    db_session: AsyncSession, saved_trip
+):
+    repository = TripRepository(db_session)
+    trip = saved_trip
+    db_session.add(trip)
+    await db_session.flush()
+
+    await repository.remove(trip)
+
+    result = await db_session.get(Trip, trip.id)
+    assert result is None
