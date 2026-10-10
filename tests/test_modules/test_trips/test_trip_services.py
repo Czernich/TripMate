@@ -12,6 +12,7 @@ class FakeTripRepository:
     def __init__(self, trips: list[Trip] | None = None):
         self.trips = trips or []
         self.added_trip: Trip | None = None
+        self.removed_trip: Trip | None = None
 
     async def add(self, trip: Trip) -> Trip:
         self.added_trip = trip
@@ -26,6 +27,11 @@ class FakeTripRepository:
             if trip.id == trip_id:
                 return trip
         return None
+
+    async def remove(self, trip: Trip) -> Trip:
+        self.removed_trip = trip
+        self.trips.remove(trip)
+        return trip
 
 
 @pytest.mark.asyncio
@@ -78,9 +84,27 @@ class DuplicateTripRepository(FakeTripRepository):
         raise TripAlreadyExistsException()
 
 
-@pytest.mark.asyncio
 async def test_create_trip_raises_when_trip_already_exists(saved_trip):
     service = TripService(DuplicateTripRepository())
 
     with pytest.raises(TripAlreadyExistsException, match="Trip already exists."):
         await service.create_trip(saved_trip)
+
+
+async def test_delete_trip_removes_trip(saved_trip):
+    trip = saved_trip
+    repo = FakeTripRepository(trips=[trip])
+    service = TripService(repo)
+
+    await service.delete_trip(trip.id)
+
+    assert repo.trips == []
+    assert repo.removed_trip is trip
+
+
+async def test_delete_trip_raises_when_trip_not_found():
+    repo = FakeTripRepository()
+    service = TripService(repo)
+
+    with pytest.raises(TripNotFoundException, match="Trip with id 2 was not found."):
+        await service.delete_trip(2)
