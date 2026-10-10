@@ -168,14 +168,14 @@ Stop the environment:
 make down
 ```
 
-## 4. Run locally without Docker
+## 3. Run locally without Docker
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate  # on Windows: .venv\Scripts\activate
 ```
 
-## 5. Install dependencies
+## 4. Install dependencies
 
 Install the pinned dependency management tools:
 
@@ -196,7 +196,7 @@ Sync the virtual environment:
 pip-sync requirements.txt requirements-dev.txt
 ```
 
-## 6. Manage dependencies
+## 5. Manage dependencies
 
 `requirements.in` contains runtime dependencies and `requirements-dev.in` contains development dependencies.
 
@@ -223,15 +223,15 @@ pip-compile --output-file=requirements-dev.txt requirements-dev.in
 
 After changing dependencies, sync the environment using the command from the installation section.
 
-## 7. Configure environment
+## 6. Configure environment
 
 Copy `.env.example` to `.env` and adjust values as needed. See [Environment Variables](#environment-variables) for details.
 
-## 8. Start required services
+## 7. Start required services
 
 If running without Docker Compose, you'll need PostgreSQL running separately, or use the Docker Compose flow above.
 
-## 9. Run the application
+## 8. Run the application
 
 ```bash
 uvicorn app.main:app --reload
