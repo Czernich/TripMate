@@ -7,7 +7,6 @@ import app.models  # noqa: F401
 from alembic import context
 from app.database import Base
 from app.settings import settings_db
-import app.models
 
 config = context.config
 
