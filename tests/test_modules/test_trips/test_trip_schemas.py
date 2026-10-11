@@ -3,7 +3,7 @@ from datetime import date
 import pytest
 from pydantic import ValidationError
 
-from app.modules.trips.schemas import TripCreate, TripDetail
+from app.modules.trips.schemas import TripCreate, TripDetail, TripUpdate
 
 
 def test_trip_create_valid():
@@ -142,3 +142,77 @@ def test_trip_create_validates_max_length_after_trimming():
 
     assert trip.name == "a" * 255
     assert trip.destination == "b" * 255
+
+
+def test_trip_update_accepts_one_field():
+    trip = TripUpdate(destination="Madrid")
+
+    assert trip.destination == "Madrid"
+    assert trip.model_dump(exclude_unset=True) == {
+        "destination": "Madrid",
+    }
+
+
+def test_trip_update_accepts_both_dates():
+    trip = TripUpdate(
+        start_date=date(2026, 9, 10),
+        end_date=date(2026, 9, 15),
+    )
+
+    assert trip.model_dump(exclude_unset=True) == {
+        "start_date": date(2026, 9, 10),
+        "end_date": date(2026, 9, 15),
+    }
+
+
+@pytest.mark.parametrize("field", ["name", "destination"])
+def test_trip_update_trims_text(field):
+    trip = TripUpdate(**{field: "  Barcelona  "})
+
+    assert trip.model_dump(exclude_unset=True) == {
+        field: "Barcelona",
+    }
+
+
+@pytest.mark.parametrize("field", ["name", "destination"])
+def test_trip_update_accepts_255_characters(field):
+    value = "a" * 255
+
+    trip = TripUpdate(**{field: value})
+
+    assert trip.model_dump(exclude_unset=True) == {field: value}
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        pytest.param({}, id="empty_body"),
+        pytest.param({"name": None}, id="null_name"),
+        pytest.param({"destination": None}, id="null_destination"),
+        pytest.param({"start_date": None}, id="null_start_date"),
+        pytest.param({"end_date": None}, id="null_end_date"),
+        pytest.param({"name": ""}, id="empty_name"),
+        pytest.param({"name": "   "}, id="blank_name"),
+        pytest.param({"destination": ""}, id="empty_destination"),
+        pytest.param({"destination": "   "}, id="blank_destination"),
+        pytest.param({"name": "a" * 256}, id="name_too_long"),
+        pytest.param(
+            {"destination": "a" * 256},
+            id="destination_too_long",
+        ),
+        pytest.param({"start_date": "invalid"}, id="invalid_date"),
+        pytest.param({"unknown": "value"}, id="unknown_field"),
+        pytest.param({"id": 1}, id="protected_id"),
+        pytest.param(
+            {"created_at": "2026-01-01T00:00:00Z"},
+            id="protected_created_at",
+        ),
+        pytest.param(
+            {"updated_at": "2026-01-01T00:00:00Z"},
+            id="protected_updated_at",
+        ),
+    ],
+)
+def test_trip_update_invalid_raises(payload):
+    with pytest.raises(ValidationError):
+        TripUpdate(**payload)
