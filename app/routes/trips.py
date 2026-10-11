@@ -4,7 +4,7 @@ from fastapi import APIRouter, Path
 
 from app.models.trip import Trip
 from app.modules.trips.dependencies import SessionService
-from app.modules.trips.schemas import TripDetail
+from app.modules.trips.schemas import TripDetail, TripUpdate
 
 router = APIRouter(prefix="/trips", tags=["trips"])
 
@@ -15,3 +15,12 @@ async def get_trip(
     service: SessionService,
 ) -> Trip:
     return await service.get_trip(trip_id)
+
+
+@router.patch("/{trip_id}", response_model=TripDetail, status_code=200)
+async def update_trip(
+    trip_id: Annotated[int, Path(gt=0)],
+    payload: TripUpdate,
+    service: SessionService,
+) -> Trip:
+    return await service.update_trip(trip_id, payload)

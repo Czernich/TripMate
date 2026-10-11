@@ -1,21 +1,23 @@
 from datetime import date
+from typing import Annotated, Self
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, StringConstraints, model_validator
+
+TrimmedText255 = Annotated[
+    str,
+    StringConstraints(
+        strip_whitespace=True,
+        min_length=1,
+        max_length=255,
+    ),
+]
 
 
 class TripBase(BaseModel):
-    name: str = Field(..., min_length=1, description="Trip name, cannot be empty")
-    destination: str
+    name: TrimmedText255
+    destination: TrimmedText255
     start_date: date
     end_date: date
-
-    @field_validator("name")
-    @classmethod
-    def name_not_blank(cls, value: str) -> str:
-        value = value.strip()
-        if not value:
-            raise ValueError("name cannot be empty")
-        return value
 
     @model_validator(mode="after")
     def check_dates(self) -> "TripBase":
@@ -32,3 +34,23 @@ class TripDetail(TripBase):
     id: int
 
     model_config = {"from_attributes": True}
+
+
+class TripUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: TrimmedText255 | None = None
+    destination: TrimmedText255 | None = None
+    start_date: date | None = None
+    end_date: date | None = None
+
+    @model_validator(mode="after")
+    def validate_patch(self) -> Self:
+        if not self.model_fields_set:
+            raise ValueError("Provide at least one field to update")
+
+        for field_name in self.model_fields_set:
+            if getattr(self, field_name) is None:
+                raise ValueError(f"{field_name} cannot be null")
+
+        return self
