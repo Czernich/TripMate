@@ -304,13 +304,14 @@ http://127.0.0.1:8000/openapi.json
 Keep a short overview of the main API resources. Detailed API contracts should remain available through OpenAPI.
 
 | Method | Endpoint | Description | Authentication |
+<<<<<<< HEAD
 |--------|---|---|---|
 | POST   | `/trips` | Create a new trip | None |
-| GET    | `/trips` | List all trips | None |
+| GET    | `/trips` |List trips with pagination | None |
 | GET    | `/trips/{trip_id}` | Get a single trip by ID | None |
 | PATCH  | `/trips/{trip_id}` | Partially update trip by ID | None |
 
-Example request body for `POST /trips`:
+### Example request body for `POST /trips`:
 
 ```json
 {
@@ -326,6 +327,21 @@ Example request body for `PATCH /trips/{trip_id}`:
 {
   "destination": "Madrid"
 }
+```
+
+### Pagination
+
+The `GET /trips` endpoint supports offset-based pagination. Results are ordered by trip ID in ascending order.
+
+| Parameter | Default | Constraints |
+|---|---|---|
+| `limit` | 20 | Integer between 1 and 100 |
+| `offset` | 0 | Non-negative integer |
+
+Example:
+
+```http
+GET /trips?limit=10&offset=20
 ```
 
 ---
