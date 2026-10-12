@@ -1,0 +1,8 @@
+name: local
+variables:
+  - name: baseUrl
+    value: http://127.0.0.1:8000
+    description: base url
+  - name: missingTripId
+    value: "999999"
+    description: Positive trip ID expected not to exist in the local database

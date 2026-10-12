@@ -1,0 +1,65 @@
+info:
+  name: Create trip
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/trips"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Barcelona Trip",
+        "destination": "Barcelona",
+        "start_date": "2026-09-10",
+        "end_date": "2026-09-15"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: bru.deleteVar("tripId");
+    - type: after-response
+      code: |-
+        const trip = res.getBody();
+
+        if (
+          res.getStatus() !== 201 ||
+          !trip ||
+          !Number.isInteger(trip.id) ||
+          trip.id <= 0
+        ) {
+          throw new Error("Expected 201 and a positive integer trip ID");
+        }
+
+        bru.setVar("tripId", trip.id);
+    - type: tests
+      code: |-
+        test("Trip create return 201", function () {
+          expect(res.getStatus()).to.equal(201);
+        });
+
+        test("Response has data of created trip", function () {
+          const trip = res.getBody();
+
+          expect(trip.name).to.equal("Barcelona Trip");
+          expect(trip.destination).to.equal("Barcelona");
+          expect(trip.start_date).to.equal("2026-09-10");
+          expect(trip.end_date).to.equal("2026-09-15");
+        });
+
+        test("Trip ID is a positive integer", function () {
+          const id = res.getBody().id;
+
+          expect(Number.isInteger(id)).to.equal(true);
+          expect(id).to.be.greaterThan(0);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

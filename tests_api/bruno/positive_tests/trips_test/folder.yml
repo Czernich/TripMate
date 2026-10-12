@@ -1,0 +1,7 @@
+info:
+  name: trips_test
+  type: folder
+  seq: 1
+
+request:
+  auth: inherit

@@ -1,0 +1,37 @@
+info:
+  name: Reversed trip dates
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/trips"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Invalid dates trip",
+        "destination": "Barcelona",
+        "start_date": "2026-11-15",
+        "end_date": "2026-11-10"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("Rejects reversed trip dates with 422", function () {
+          expect(res.getStatus()).to.equal(422);
+        });
+
+        test("Returns the VALIDATION_ERROR error code", function () {
+          expect(res.getBody().error.code).to.equal("VALIDATION_ERROR");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
