@@ -10,6 +10,7 @@ class TripRepository:
 
     async def add(self, trip: Trip) -> Trip:
         self.session.add(trip)
+
         await self.session.flush()
         await self.session.refresh(trip)
         return trip
