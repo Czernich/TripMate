@@ -27,9 +27,7 @@ def database_unavailable():
     app.dependency_overrides.pop(get_db, None)
 
 
-async def test_list_trips_returns_200_with_persisted_fields(
-    client, saved_trips
-):
+async def test_list_trips_returns_200_with_persisted_fields(client, saved_trips):
     response = await client.get("/trips?limit=1")
 
     assert response.status_code == 200
@@ -160,5 +158,3 @@ async def test_list_trips_returns_503_when_database_unavailable(
             "message": "Database is currently unavailable. Please try again later.",
         }
     }
-
-
