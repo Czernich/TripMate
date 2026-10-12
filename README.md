@@ -297,10 +297,10 @@ Keep a short overview of the main API resources. Detailed API contracts should r
 | Method | Endpoint | Description | Authentication |
 |---|---|---|---|
 | POST | `/trips` | Create a new trip | None |
-| GET | `/trips` | List all trips | None |
+| GET | `/trips` | List trips with pagination | None |
 | GET | `/trips/{trip_id}` | Get a single trip by ID | None |
 
-Example request body for `POST /trips`:
+### Example request body for `POST /trips`:
 
 ```json
 {
@@ -309,6 +309,21 @@ Example request body for `POST /trips`:
   "start_date": "2026-09-10",
   "end_date": "2026-09-15"
 }
+```
+
+### Pagination
+
+The `GET /trips` endpoint supports offset-based pagination. Results are ordered by trip ID in ascending order.
+
+| Parameter | Default | Constraints |
+|---|---|---|
+| `limit` | 20 | Integer between 1 and 100 |
+| `offset` | 0 | Non-negative integer |
+
+Example:
+
+```http
+GET /trips?limit=10&offset=20
 ```
 
 ---
