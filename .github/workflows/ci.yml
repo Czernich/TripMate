@@ -53,7 +53,7 @@ jobs:
           docker compose run --build --rm
           -e COVERAGE_FILE=/tmp/.coverage
           trip_mate_tests
-          pytest -v --cov=app --cov-report=term-missing
+          pytest -v --cov=app --cov-report=term-missing --cov-fail-under=80
 
       - name: Stop containers
         if: always()
