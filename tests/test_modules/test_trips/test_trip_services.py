@@ -18,7 +18,7 @@ class FakeTripRepository:
         self.trips.append(trip)
         return trip
 
-    async def get_all(self) -> list[Trip]:
+    async def get_trips(self) -> list[Trip]:
         return self.trips
 
     async def get_by_id(self, trip_id: int) -> Trip | None:
