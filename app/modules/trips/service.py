@@ -17,8 +17,11 @@ class TripService:
         except TripAlreadyExistsException:
             raise TripAlreadyExistsException()
 
-    async def list_trips(self) -> list[Trip]:
-        return await self.repository.get_all()
+    async def list_trips(self, limit: int, offset: int) -> list[Trip]:
+        return await self.repository.get_trips(
+            limit=limit,
+            offset=offset,
+        )
 
     async def get_trip(self, trip_id: int) -> Trip:
         trip = await self.repository.get_by_id(trip_id)
