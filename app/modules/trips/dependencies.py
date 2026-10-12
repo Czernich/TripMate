@@ -7,7 +7,7 @@ from app.database import get_db
 from app.modules.trips.repository import TripRepository
 from app.modules.trips.service import TripService
 
-SessionDep = Annotated[AsyncSession, Depends(get_db)]
+SessionDep = Annotated[AsyncSession, Depends(get_db, scope="function")]
 
 
 def get_trip_repository(session: SessionDep) -> TripRepository:
