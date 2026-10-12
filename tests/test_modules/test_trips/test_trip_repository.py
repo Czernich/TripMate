@@ -1,4 +1,3 @@
-import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -6,7 +5,6 @@ from app.models.trip import Trip
 from app.modules.trips.repository import TripRepository
 
 
-@pytest.mark.asyncio
 async def test_add_adds_trip_to_database(db_session: AsyncSession, trip_factory):
     repository = TripRepository(db_session)
     trip = trip_factory()
@@ -23,7 +21,6 @@ async def test_add_adds_trip_to_database(db_session: AsyncSession, trip_factory)
     assert db_trip.name == "All inclusive"
 
 
-@pytest.mark.asyncio
 async def test_get_all_returns_all_trips(db_session: AsyncSession, trip_factory):
     repository = TripRepository(db_session)
     trip1 = trip_factory()
@@ -36,7 +33,6 @@ async def test_get_all_returns_all_trips(db_session: AsyncSession, trip_factory)
     assert {trip.destination for trip in result} == {"Paris", "Berlin"}
 
 
-@pytest.mark.asyncio
 async def test_get_trip_by_id_returns_correct_trip(
     db_session: AsyncSession, trip_factory
 ):
@@ -51,7 +47,6 @@ async def test_get_trip_by_id_returns_correct_trip(
     assert result.id == trip1.id
 
 
-@pytest.mark.asyncio
 async def test_get_trip_by_id_returns_none_when_trip_no_exists(
     db_session: AsyncSession,
 ):
@@ -61,7 +56,6 @@ async def test_get_trip_by_id_returns_none_when_trip_no_exists(
     assert result is None
 
 
-@pytest.mark.asyncio
 async def test_get_all_returns_empty_list_when_database_is_empty(
     db_session: AsyncSession,
 ):

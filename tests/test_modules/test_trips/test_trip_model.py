@@ -8,7 +8,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.trip import Trip
 
 
-@pytest.mark.asyncio
 async def test_trip_creation(db_session: AsyncSession):
     trip = Trip(
         name="Test vacation",
@@ -32,7 +31,6 @@ async def test_trip_creation(db_session: AsyncSession):
     assert saved_trip.end_date == date(2026, 7, 14)
 
 
-@pytest.mark.asyncio
 async def test_trip_requires_destination(db_session: AsyncSession):
     trip = Trip(
         name="Test vacation",
@@ -49,7 +47,6 @@ async def test_trip_requires_destination(db_session: AsyncSession):
     await db_session.rollback()
 
 
-@pytest.mark.asyncio
 async def test_trip_dates_order(db_session: AsyncSession):
     trip = Trip(
         name="Invalid trip",
