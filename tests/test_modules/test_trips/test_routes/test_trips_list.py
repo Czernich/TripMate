@@ -20,7 +20,6 @@ async def saved_trips(db_session: AsyncSession, override_get_db, trip_factory):
 def database_unavailable():
     async def override_get_db():
         raise DatabaseUnavailableException()
-        yield
 
     app.dependency_overrides[get_db] = override_get_db
     yield
