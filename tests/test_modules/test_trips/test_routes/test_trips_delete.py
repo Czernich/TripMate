@@ -110,7 +110,7 @@ async def test_delete_trip_returns_503_and_rolls_back_when_commit_fails(
 ):
     trip_id = seeded_trip
 
-    async def failing_commit(self, *args, **kwargs):
+    async def failing_commit(*args, **kwargs):
         raise OperationalError("commit failed", {}, RuntimeError("connection lost"))
 
     with monkeypatch.context() as m:
@@ -125,7 +125,7 @@ async def test_delete_trip_returns_503_and_rolls_back_when_commit_fails(
         }
     }
 
-    assert "connetion lost" not in response.text
+    assert "connection lost" not in response.text
 
     get_response = await client.get(f"/trips/{trip_id}")
 
