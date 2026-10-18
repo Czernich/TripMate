@@ -1,4 +1,6 @@
-from fastapi import APIRouter, status
+from typing import Annotated
+
+from fastapi import APIRouter, Path,  status
 
 from app.models.trip import Trip
 from app.modules.trips.dependencies import TripServiceDep
@@ -22,3 +24,11 @@ async def create_trip(
     trip = Trip(**payload.model_dump())
 
     return await service.create_trip(trip)
+
+
+@router.get("/{trip_id}", response_model=TripDetail, status_code=200)
+async def get_trip(
+    trip_id: Annotated[int, Path(gt=0)],
+    service: TripServiceDep,
+) -> Trip:
+    return await service.get_trip(trip_id)

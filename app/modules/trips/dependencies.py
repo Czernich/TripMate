@@ -9,7 +9,7 @@ from app.modules.trips.service import TripService
 
 SessionDep = Annotated[
     AsyncSession,
-    Depends(get_db),
+    Depends(get_db, scope="function"),
 ]
 
 
