@@ -33,18 +33,15 @@ async def test_delete_trip_returns_204(client, saved_trip):
     assert response.text == ""
 
 
-async def test_delete_trip_returns_404_after_deleting(client, saved_trip):
-    trip = saved_trip
-    await client.delete(f"/trips/{trip.id}")
-    response = await client.get(f"/trips/{trip.id}")
+async def test_delete_trip_removes_trip_from_fresh_session(client, seeded_trip):
+    response = await client.delete(f"/trips/{seeded_trip}")
 
-    assert response.status_code == 404
-    assert response.json() == {
-        "error": {
-            "code": "TRIP_NOT_FOUND",
-            "message": f"Trip with id {trip.id} was not found.",
-        }
-    }
+    assert response.status_code == 204
+
+    async with SessionLocal() as session:
+        get_trip = await session.get(Trip, seeded_trip)
+
+    assert get_trip is None
 
 
 async def test_repeated_delete_returns_404(client, saved_trip):
