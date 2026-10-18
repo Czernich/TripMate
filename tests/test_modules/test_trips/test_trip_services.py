@@ -23,8 +23,8 @@ class FakeTripRepository:
         self.trips.append(trip)
         return trip
 
-    async def get_trips(self) -> list[Trip]:
-        return self.trips
+    async def get_trips(self, limit: int, offset: int) -> list[Trip]:
+        return sorted(self.trips, key=lambda trip: trip.id)[offset : offset + limit]
 
     async def get_by_id(self, trip_id: int) -> Trip | None:
         for trip in self.trips:
@@ -60,15 +60,16 @@ async def test_create_trip(trip_factory):
 
 @pytest.mark.asyncio
 async def test_list_trips(trip_factory):
-    trip1 = trip_factory(name="Your trip", destination="Amsterdam")
-    trip2 = trip_factory(name="Dream trip", destination="Dubai")
-    repo = FakeTripRepository(trips=[trip1, trip2])
+    trips = [trip_factory(id=i, name=f"Trip {i}") for i in range(1, 6)]
+    repo = FakeTripRepository(trips=trips)
     service = TripService(repo)
 
-    trips = await service.list_trips()
+    result = await service.list_trips(
+        limit=2,
+        offset=1,
+    )
 
-    assert len(trips) == 2
-    assert trips[0].destination == "Amsterdam"
+    assert [trip.id for trip in result] == [2, 3]
 
 
 @pytest.mark.asyncio
