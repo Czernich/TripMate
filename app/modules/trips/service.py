@@ -1,4 +1,8 @@
 from app.models.trip import Trip
+from app.modules.trips.exceptions import (
+    TripAlreadyExistsException,
+    TripNotFoundException,
+)
 from app.modules.trips.repository import TripRepository
 
 
@@ -7,7 +11,11 @@ class TripService:
         self.repository = repository
 
     async def create_trip(self, trip: Trip) -> Trip:
-        return await self.repository.add(trip)
+        try:
+            return await self.repository.add(trip)
+
+        except TripAlreadyExistsException:
+            raise TripAlreadyExistsException()
 
     async def list_trips(self) -> list[Trip]:
         return await self.repository.get_all()
@@ -15,5 +23,7 @@ class TripService:
     async def get_trip(self, trip_id: int) -> Trip:
         trip = await self.repository.get_by_id(trip_id)
         if not trip:
-            raise ValueError(f"Trip with id {trip_id} not found.")
+            raise TripNotFoundException(
+                message=f"Trip with id {trip_id} was not found."
+            )
         return trip

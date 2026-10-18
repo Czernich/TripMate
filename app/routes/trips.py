@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Path,  status
+from fastapi import APIRouter, Path, status
 
 from app.models.trip import Trip
 from app.modules.trips.dependencies import TripServiceDep
