@@ -32,12 +32,11 @@ async def committed_trip_id():
         await session.refresh(trip)
         trip_id = trip.id
 
-    try:
-        yield trip_id
-    finally:
-        async with SessionLocal() as session:
-            await session.execute(delete(Trip).where(Trip.id == trip_id))
-            await session.commit()
+    yield trip_id
+
+    async with SessionLocal() as session:
+        await session.execute(delete(Trip).where(Trip.id == trip_id))
+        await session.commit()
 
 
 async def test_patch_trip_updates_destination(client, saved_trip):
