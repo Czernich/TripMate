@@ -27,3 +27,7 @@ class TripService:
                 message=f"Trip with id {trip_id} was not found."
             )
         return trip
+
+    async def delete_trip(self, trip_id: int) -> None:
+        trip = await self.get_trip(trip_id)
+        await self.repository.remove(trip)

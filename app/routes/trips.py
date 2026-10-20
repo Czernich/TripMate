@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Path
+from fastapi import APIRouter, Path, Response
 
 from app.models.trip import Trip
 from app.modules.trips.dependencies import SessionService
@@ -15,3 +15,11 @@ async def get_trip(
     service: SessionService,
 ) -> Trip:
     return await service.get_trip(trip_id)
+
+
+@router.delete("/{trip_id}", response_model=None, status_code=204)
+async def delete_trip(
+    trip_id: Annotated[int, Path(gt=0)], service: SessionService
+) -> Response:
+    await service.delete_trip(trip_id)
+    return Response(status_code=204)
