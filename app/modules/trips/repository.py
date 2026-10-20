@@ -14,8 +14,11 @@ class TripRepository:
         await self.session.refresh(trip)
         return trip
 
-    async def get_all(self) -> list[Trip]:
-        result = await self.session.execute(select(Trip))
+    async def get_trips(self, limit: int, offset: int) -> list[Trip]:
+
+        statement = select(Trip).order_by(Trip.id.asc()).limit(limit).offset(offset)
+
+        result = await self.session.execute(statement)
         return list(result.scalars().all())
 
     async def get_by_id(self, trip_id: int) -> Trip | None:
