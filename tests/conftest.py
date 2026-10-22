@@ -1,9 +1,11 @@
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from app.database import engine, get_db
+from app.database import SessionLocal, engine, get_db
 from app.main import app
+from app.models import Trip
 from app.settings import settings_db
 
 
@@ -44,3 +46,14 @@ async def override_get_db(db_session: AsyncSession):
     app.dependency_overrides[get_db] = get_test_db
     yield
     app.dependency_overrides.pop(get_db, None)
+
+
+@pytest_asyncio.fixture(scope="session", autouse=True)
+async def prepare_test_database():
+    ensure_test_database()
+
+    async with SessionLocal() as session:
+        await session.execute(delete(Trip))
+        await session.commit()
+
+    yield
