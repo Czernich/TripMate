@@ -5,9 +5,9 @@ import pytest
 from app.models.trip import Trip
 from app.modules.trips.exceptions import (
     TripAlreadyExistsException,
+    TripNotFoundException,
     TripUnprocessableException,
 )
-from app.modules.trips.exceptions import TripNotFoundException
 from app.modules.trips.schemas import TripUpdate
 from app.modules.trips.service import TripService
 
@@ -189,6 +189,7 @@ async def test_update_trip_invalid_dates_do_not_change_trip(trip_factory, change
     assert trip.destination == "Paris"
     assert trip.start_date == date(2026, 10, 1)
     assert trip.end_date == date(2026, 10, 10)
+
 
 @pytest.mark.asyncio
 async def test_update_trip_no_exist():

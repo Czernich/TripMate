@@ -41,7 +41,7 @@ async def test_get_all_returns_all_trips(db_session: AsyncSession, trip_factory)
 
 @pytest.mark.asyncio
 async def test_get_trip_by_id_returns_correct_trip(
-        db_session: AsyncSession, trip_factory
+    db_session: AsyncSession, trip_factory
 ):
     repository = TripRepository(db_session)
     trip1 = trip_factory()
@@ -56,7 +56,7 @@ async def test_get_trip_by_id_returns_correct_trip(
 
 @pytest.mark.asyncio
 async def test_get_trip_by_id_returns_none_when_trip_no_exists(
-        db_session: AsyncSession,
+    db_session: AsyncSession,
 ):
     repository = TripRepository(db_session)
     result = await repository.get_by_id(100)
@@ -66,16 +66,17 @@ async def test_get_trip_by_id_returns_none_when_trip_no_exists(
 
 @pytest.mark.asyncio
 async def test_get_all_returns_empty_list_when_database_is_empty(
-        db_session: AsyncSession,
+    db_session: AsyncSession,
 ):
     repository = TripRepository(db_session)
     result = await repository.get_all()
 
     assert result == []
 
+
 @pytest.mark.asyncio
 async def test_update_changes_only_supplied_field(
-        db_session: AsyncSession, trip_factory
+    db_session: AsyncSession, trip_factory
 ):
     repository = TripRepository(db_session)
     trip = trip_factory()
@@ -97,6 +98,7 @@ async def test_update_changes_only_supplied_field(
     assert result.name == "All inclusive"
     assert result.start_date == date(2026, 10, 1)
     assert result.end_date == date(2026, 10, 10)
+
 
 @pytest.mark.asyncio
 async def test_update_changes_both_dates(db_session: AsyncSession, trip_factory):
