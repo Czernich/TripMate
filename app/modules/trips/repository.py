@@ -1,3 +1,5 @@
+from datetime import date
+
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,7 +29,9 @@ class TripRepository:
         )
         return result.scalar_one_or_none()
 
-    from datetime import date
+    async def remove(self, trip: Trip) -> None:
+        trip.deleted_at = func.now()
+        await self.session.flush()
 
     async def update(
         self,
