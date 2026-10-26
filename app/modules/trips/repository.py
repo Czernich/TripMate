@@ -21,3 +21,18 @@ class TripRepository:
 
     async def get_by_id(self, trip_id: int) -> Trip | None:
         return await self.session.get(Trip, trip_id)
+
+    from datetime import date
+
+    async def update(
+        self,
+        trip: Trip,
+        changes: dict[str, str | date],
+    ) -> Trip:
+        for field_name, value in changes.items():
+            setattr(trip, field_name, value)
+
+        await self.session.flush()
+        await self.session.refresh(trip)
+
+        return trip

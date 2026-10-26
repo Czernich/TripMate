@@ -1,3 +1,5 @@
+from datetime import date
+
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -70,3 +72,51 @@ async def test_get_all_returns_empty_list_when_database_is_empty(
     result = await repository.get_all()
 
     assert result == []
+
+
+@pytest.mark.asyncio
+async def test_update_changes_only_supplied_field(
+    db_session: AsyncSession, trip_factory
+):
+    repository = TripRepository(db_session)
+    trip = trip_factory()
+    await repository.add(trip)
+
+    original_id = trip.id
+    original_created_at = trip.created_at
+
+    result = await repository.update(
+        trip,
+        {"destination": "Madrid"},
+    )
+
+    await db_session.refresh(result)
+
+    assert result.id == original_id
+    assert result.created_at == original_created_at
+    assert result.destination == "Madrid"
+    assert result.name == "All inclusive"
+    assert result.start_date == date(2026, 10, 1)
+    assert result.end_date == date(2026, 10, 10)
+
+
+@pytest.mark.asyncio
+async def test_update_changes_both_dates(db_session: AsyncSession, trip_factory):
+    repository = TripRepository(db_session)
+    trip = trip_factory()
+    await repository.add(trip)
+
+    result = await repository.update(
+        trip,
+        {
+            "start_date": date(2026, 11, 1),
+            "end_date": date(2026, 11, 10),
+        },
+    )
+
+    await db_session.refresh(result)
+
+    assert result.start_date == date(2026, 11, 1)
+    assert result.end_date == date(2026, 11, 10)
+    assert result.name == "All inclusive"
+    assert result.destination == "Paris"

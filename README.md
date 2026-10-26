@@ -304,10 +304,11 @@ http://127.0.0.1:8000/openapi.json
 Keep a short overview of the main API resources. Detailed API contracts should remain available through OpenAPI.
 
 | Method | Endpoint | Description | Authentication |
-|---|---|---|---|
-| POST | `/trips` | Create a new trip | None |
-| GET | `/trips` | List all trips | None |
-| GET | `/trips/{trip_id}` | Get a single trip by ID | None |
+|--------|---|---|---|
+| POST   | `/trips` | Create a new trip | None |
+| GET    | `/trips` | List all trips | None |
+| GET    | `/trips/{trip_id}` | Get a single trip by ID | None |
+| PATCH  | `/trips/{trip_id}` | Partially update trip by ID | None |
 
 Example request body for `POST /trips`:
 
@@ -317,6 +318,13 @@ Example request body for `POST /trips`:
   "destination": "Barcelona",
   "start_date": "2026-09-10",
   "end_date": "2026-09-15"
+}
+```
+Example request body for `PATCH /trips/{trip_id}`:
+
+```json
+{
+  "destination": "Madrid"
 }
 ```
 
