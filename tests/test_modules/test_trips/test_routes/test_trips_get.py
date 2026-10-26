@@ -2,7 +2,7 @@ import pytest
 
 
 async def test_get_trip_returns_200_with_persisted_fields(client, saved_trip):
-    trip = saved_trip
+    trip = await saved_trip()
     response = await client.get(f"/trips/{trip.id}")
 
     assert response.status_code == 200

@@ -7,7 +7,7 @@ from app.models import Trip
 
 
 async def test_delete_trip_returns_204(client, saved_trip):
-    trip = saved_trip
+    trip = await saved_trip()
     response = await client.delete(f"/trips/{trip.id}")
 
     assert response.status_code == 204
@@ -31,7 +31,7 @@ async def test_delete_soft_deletes_trip_in_fresh_session(client, seeded_trip):
 
 
 async def test_repeated_delete_returns_404(client, saved_trip):
-    trip = saved_trip
+    trip = await saved_trip()
     first = await client.delete(f"/trips/{trip.id}")
     assert first.status_code == 204
 
@@ -49,12 +49,13 @@ async def test_repeated_delete_returns_404(client, saved_trip):
 async def test_delete_preserves_other_trips(
     client,
     saved_trip,
-    second_saved_trip,
 ):
-    trip = saved_trip
+    trip = await saved_trip()
     delete_response = await client.delete(f"/trips/{trip.id}")
+
     assert delete_response.status_code == 204
-    trip2 = second_saved_trip
+
+    trip2 = await saved_trip(name="Winter in Alps")
     get_response = await client.get(f"/trips/{trip2.id}")
 
     assert get_response.status_code == 200

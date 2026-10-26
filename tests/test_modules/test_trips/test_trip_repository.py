@@ -29,43 +29,20 @@ async def test_add_adds_trip_to_database(db_session: AsyncSession, trip_factory)
 @pytest.mark.asyncio
 async def test_get_all_returns_all_trips(db_session: AsyncSession, trip_factory):
     repository = TripRepository(db_session)
-    trip1 = saved_trip
-    trip2 = second_saved_trip
-    db_session.add_all([trip1, trip2])
-    await db_session.flush()
+    await saved_trip()
+    await saved_trip(name="Winter in Krakow", destination="Krakow")
     result = await repository.get_all()
 
     assert len(result) == 2
     assert {trip.destination for trip in result} == {"Rome", "Krakow"}
 
 
-<<<<<<< HEAD
 @pytest.mark.asyncio
-=======
-async def test_get_all_excludes_soft_deleted_trips(
-    db_session: AsyncSession, saved_trip, second_saved_trip
-):
-    repository = TripRepository(db_session)
-    deleted_trip = saved_trip
-    active_trip = second_saved_trip
-    db_session.add_all([deleted_trip, active_trip])
-    await db_session.flush()
-
-    await repository.remove(deleted_trip)
-
-    result = await repository.get_all()
-
-    assert result == [active_trip]
-
-
->>>>>>> fb05336 (refactor)
 async def test_get_trip_by_id_returns_correct_trip(
     db_session: AsyncSession, saved_trip
 ):
     repository = TripRepository(db_session)
-    trip1 = saved_trip
-    db_session.add(trip1)
-    await db_session.flush()
+    trip1 = await saved_trip()
     result = await repository.get_by_id(trip1.id)
 
     assert result is not None

@@ -32,18 +32,13 @@ async def seeded_trip(request: pytest.FixtureRequest):
 
 @pytest_asyncio.fixture
 async def saved_trip(db_session: AsyncSession, override_get_db):
-    trip = TripFactory.build()
-    db_session.add(trip)
-    await db_session.flush()
-    return trip
+    async def create_trip(**overrides):
+        trip = TripFactory.build(**overrides)
+        db_session.add(trip)
+        await db_session.flush()
+        return trip
 
-
-@pytest_asyncio.fixture
-async def second_saved_trip(db_session: AsyncSession, override_get_db):
-    trip = TripFactory.build(name="Winter in Krakow", destination="Krakow")
-    db_session.add(trip)
-    await db_session.flush()
-    return trip
+    return create_trip
 
 
 @pytest.fixture
