@@ -41,7 +41,6 @@ class FakeTripRepository:
         return trip
 
 
-@pytest.mark.asyncio
 async def test_create_trip(trip_factory):
     repo = FakeTripRepository()
     service = TripService(repo)
@@ -99,7 +98,6 @@ class DuplicateTripRepository(FakeTripRepository):
         raise TripAlreadyExistsException()
 
 
-@pytest.mark.asyncio
 async def test_create_trip_raises_when_trip_already_exists(trip_factory):
     service = TripService(DuplicateTripRepository())
 
