@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.trip import Trip
@@ -16,11 +16,16 @@ class TripRepository:
         return trip
 
     async def get_all(self) -> list[Trip]:
-        result = await self.session.execute(select(Trip))
+        result = await self.session.execute(
+            select(Trip).where(Trip.deleted_at.is_(None))
+        )
         return list(result.scalars().all())
 
     async def get_by_id(self, trip_id: int) -> Trip | None:
-        return await self.session.get(Trip, trip_id)
+        result = await self.session.execute(
+            select(Trip).where(Trip.id == trip_id, Trip.deleted_at.is_(None))
+        )
+        return result.scalar_one_or_none()
 
     from datetime import date
 
