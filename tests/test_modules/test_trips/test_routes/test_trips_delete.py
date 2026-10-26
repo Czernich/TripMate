@@ -1,28 +1,9 @@
 import pytest
-import pytest_asyncio
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import SessionLocal
 from app.models import Trip
-from tests.factories import TripFactory
-
-
-@pytest_asyncio.fixture
-async def seeded_trip():
-    async with SessionLocal() as session:
-        trip = TripFactory.build(name="Failure commit")
-        session.add(trip)
-        await session.flush()
-        trip_id = trip.id
-        await session.commit()
-    yield trip_id
-
-    async with SessionLocal() as session:
-        left_over = await session.get(Trip, trip_id)
-        if left_over is not None:
-            await session.delete(left_over)
-            await session.commit()
 
 
 async def test_delete_trip_returns_204(client, saved_trip):
@@ -33,15 +14,20 @@ async def test_delete_trip_returns_204(client, saved_trip):
     assert response.text == ""
 
 
-async def test_delete_trip_removes_trip_from_fresh_session(client, seeded_trip):
+async def test_delete_soft_deletes_trip_in_fresh_session(client, seeded_trip):
     response = await client.delete(f"/trips/{seeded_trip}")
 
     assert response.status_code == 204
 
     async with SessionLocal() as session:
-        get_trip = await session.get(Trip, seeded_trip)
+        trip = await session.get(Trip, seeded_trip)
 
-    assert get_trip is None
+    assert trip is not None
+    assert trip.deleted_at is not None
+
+    get_response = await client.get(f"/trips/{seeded_trip}")
+
+    assert get_response.status_code == 404
 
 
 async def test_repeated_delete_returns_404(client, saved_trip):
