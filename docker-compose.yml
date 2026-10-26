@@ -50,6 +50,9 @@ services:
       target: test
     env_file:
       - .env.test
+    volumes:
+      - ./app:/app/app
+      - ./tests:/app/tests
     depends_on:
       db_tests:
         condition: service_healthy
