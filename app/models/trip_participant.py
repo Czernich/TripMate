@@ -27,8 +27,8 @@ class TripParticipant(Base):
 
     __table_args__ = (
         UniqueConstraint("user_id", "trip_id", name="trip_participant_user_id_trip_id"),
-        Index("ix_trip_participant_trip_id", "trip_id"),
-        Index("trip_participant_user_id", "user_id"),
+        Index("ix_trip_participants_trip_id", "trip_id"),
+        Index("ix_trip_participants_user_id", "user_id"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
