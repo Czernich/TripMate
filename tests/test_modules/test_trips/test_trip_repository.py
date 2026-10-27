@@ -150,7 +150,7 @@ async def test_get_all_excludes_soft_deleted_trips(
 
     await repository.remove(deleted_trip)
 
-    result = await repository.get_all()
+    result = await repository.get_trips(limit=10, offset=0)
 
     assert result == [active_trip]
 

@@ -41,7 +41,6 @@ async def list_trips(
         offset=offset,
     )
 
-
 @router.get(
     "/{trip_id}",
     response_model=TripDetail,
