@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Path, Response, status, Query
+from fastapi import APIRouter, Path, Query, Response, status
 
 from app.models.trip import Trip
 from app.modules.trips.dependencies import TripServiceDep
@@ -40,6 +40,7 @@ async def list_trips(
         limit=limit,
         offset=offset,
     )
+
 
 @router.get(
     "/{trip_id}",
