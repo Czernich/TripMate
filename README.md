@@ -248,6 +248,7 @@ Never commit secrets to the repository. Copy `.env.example` to `.env` and adjust
 | `POSTGRES_USER` | Yes | - | PostgreSQL username |
 | `POSTGRES_PASSWORD` | Yes | - | PostgreSQL password |
 | `POSTGRES_DB` | Yes | - | PostgreSQL database name |
+| `LOG_LEVEL` | No | `INFO` | Application log level: `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL` (case-insensitive). See [Logging](#logging) |
 
 `.env` is listed in `.gitignore` and must never be committed.
 
@@ -649,6 +650,8 @@ Application Logic (in-memory storage)
 | `app/models` | Domain / database models |
 | `app/modules` | Application/business logic, per domain (e.g. trips), including domain schemas and validation |
 | `app/exceptions` | Exception hierarchy (`base.py`) and global error handlers (`handlers.py`) |
+| `app/logging_config.py` | Central logging setup: JSON formatter, log level, request ID in every log |
+| `app/middleware.py` | Request ID handling (`X-Request-ID`) and one log entry per completed request |
 
 ---
 
@@ -723,6 +726,53 @@ Validation errors (empty trip name, invalid date range, invalid path parameter) 
 * `app/exceptions/base.py` - `AppBaseException`, the base class of all application exceptions.
 * `app/exceptions/handlers.py` - exception handlers registered in `app/main.py` via `register_exception_handlers`.
 * `app/modules/<domain>/exceptions.py` - domain-specific exceptions (e.g. trips).
+
+---
+
+# Logging
+
+The application uses a single logging configuration (`app/logging_config.py`), set up when the application starts. Logs are written to stdout as one JSON object per line.
+
+Example:
+
+```json
+{"timestamp": "2026-10-26T12:00:00.123+00:00", "level": "INFO", "logger": "app.request", "message": "request completed", "request_id": "3f6c1b0e9d2a4c7f8a1b2c3d4e5f6a7b", "method": "GET", "path": "/health", "status_code": 200, "duration_ms": 1.42}
+```
+
+Every log line contains `timestamp`, `level`, `logger`, `message` and `request_id`.
+
+## Log Level
+
+The level is set with the `LOG_LEVEL` environment variable (`DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`, case-insensitive). It defaults to `INFO`. An invalid value stops the application at startup. See `.env.example`.
+
+## Request ID
+
+Each request gets a request ID:
+
+- a valid incoming `X-Request-ID` header (letters, digits, `.`, `_`, `-`, up to 128 characters) is reused,
+- otherwise a new ID is generated,
+- the ID is returned in the `X-Request-ID` response header, including error responses.
+
+A middleware (`app/middleware.py`) writes one `request completed` log entry per request with the method, path, status code and duration.
+
+Unhandled exceptions are logged with the request ID and the full stack trace, while the client only receives the generic `500` response (see [Error Handling](#error-handling)).
+
+## Logging in Your Own Code
+
+Use a module logger. It automatically uses the shared configuration and includes the request ID:
+
+```python
+import logging
+
+logger = logging.getLogger(__name__)
+
+logger.info("Trip %s created", trip_id)
+logger.exception("Something failed")  # inside `except`, also logs the stack trace
+```
+
+## What Is Never Logged
+
+Request bodies, headers (including `Authorization`) and query strings are not logged. Values that follow words like `password`, `token`, `secret`, `api_key` or `authorization` are masked as `***` in log messages and stack traces. Do not pass secrets to the logger on purpose.
 
 
 # Future Improvements
