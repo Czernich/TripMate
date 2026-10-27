@@ -1,9 +1,13 @@
 from datetime import date, datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import CheckConstraint, Date, DateTime, String, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.trip_participant import TripParticipant
 
 
 class Trip(Base):
@@ -34,4 +38,10 @@ class Trip(Base):
     )
     deleted_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
+    )
+
+    participants: Mapped[list["TripParticipant"]] = relationship(
+        back_populates="trip",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
