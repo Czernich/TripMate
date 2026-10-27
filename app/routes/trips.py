@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Path, Response, status
+from fastapi import APIRouter, Path, Query, Response, status
 
 from app.models.trip import Trip
 from app.modules.trips.dependencies import TripServiceDep
@@ -24,6 +24,22 @@ async def create_trip(
     trip = Trip(**payload.model_dump())
 
     return await service.create_trip(trip)
+
+
+@router.get(
+    "",
+    response_model=list[TripDetail],
+    status_code=status.HTTP_200_OK,
+)
+async def list_trips(
+    service: TripServiceDep,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    offset: Annotated[int, Query(ge=0)] = 0,
+) -> list[Trip]:
+    return await service.list_trips(
+        limit=limit,
+        offset=offset,
+    )
 
 
 @router.get(
