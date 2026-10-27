@@ -65,5 +65,5 @@ class TripParticipant(Base):
     )
 
     user: Mapped["User"] = relationship(
-        back_populates="trip_participants",
+        back_populates="trip_participations",
     )
