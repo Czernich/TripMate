@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 import pytest_asyncio
 from sqlalchemy import delete
 
@@ -22,8 +24,8 @@ async def test_trip_lifecycle_persists_across_requests(client, trip_ids_to_clean
     payload = {
         "name": "Test trip",
         "destination": "Paris",
-        "start_date": "2026-11-05",
-        "end_date": "2026-11-10",
+        "start_date": str(datetime.now(tz=timezone.utc).date() + timedelta(days=30)),
+        "end_date": str(datetime.now(tz=timezone.utc).date() + timedelta(days=35)),
     }
 
     post_response = await client.post("/trips", json=payload)
@@ -82,5 +84,11 @@ async def test_trip_lifecycle_persists_across_requests(client, trip_ids_to_clean
     list_after_delete = await client.get("/trips", params={"limit": 100})
 
     assert list_after_delete.status_code == 200
+
     listed_ids = {item["id"] for item in list_after_delete.json()}
+
     assert trip_id not in listed_ids
+
+    detail_after_delete = await client.get(f"/trips/{trip_id}")
+
+    assert detail_after_delete.status_code == 404
