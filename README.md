@@ -441,9 +441,10 @@ This avoids long CLI commands and keeps the workflow consistent across the team.
 pytest
 ```
 
-Tests reset the database schema only when `TESTING=true` and the database name
-ends with `_test`. Running pytest with the regular `.env` is rejected to avoid
-accidentally modifying the development database.
+Pytest must use the test database configured in `.env.test`. Test database
+cleanup is allowed only when `TESTING=true` and the database name ends with
+`_test`; the fixtures reject unsafe settings to protect the development
+database. The test fixtures do not recreate the schema for each test.
 
 ## API testing with Bruno
 
@@ -456,8 +457,6 @@ The create response supplies `tripId` automatically.
 Run negative examples separately.
 
 Only run requests implemented in the application version being tested.
-Pagination, PATCH, and DELETE requests are not yet verified.
-Successful create requests currently leave records in the database.
 
 See the collection documentation for details and pending scenarios.
 
@@ -465,21 +464,32 @@ See the collection documentation for details and pending scenarios.
 
 ## Tests with Docker Compose
 
+To run the suite against a fresh, disposable test database:
+
 ```bash
+docker compose rm -sf db_tests
 docker compose run --build --rm trip_mate_tests
 ```
 
-Compose starts `db_tests` automatically. The test runner uses `.env.test`
-and recreates the test schema before each test. The development database
-is not used.
+The first command removes only the `db_tests` container, so Compose creates a
+fresh test database on the next run. The test runner uses `.env.test`, starts
+`db_tests`, applies the existing Alembic migrations with `alembic upgrade head`,
+then runs pytest. The development database is not used.
 
-The test database has no volume, so it doesn't store any data. The test database schema is also recreated before every test.
+The test database has no persistent volume. The migration smoke test checks
+that its recorded Alembic revision is `head`. The Trip HTTP lifecycle test
+verifies create, retrieve, list, update, and delete against PostgreSQL, using
+fresh sessions to check that writes were committed. Other test fixtures isolate
+data using transaction rollback or clean up the records they create; they do
+not recreate the database schema.
 
 ## Testing Strategy
 
-Tests cover health checks, schema validation, models, repositories,
-services, and dependencies. Trip endpoint tests are added alongside
-their implementations.
+Tests cover health checks, schema validation, models, repositories, services,
+dependencies, and HTTP routes. Endpoint tests cover invalid requests and
+database failures. The Trip lifecycle integration test verifies persistence
+across HTTP requests, while the separate migration smoke test checks the
+database revision after the Compose migration step.
 
 ---
 
