@@ -4,11 +4,9 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, ForeignKey, Index, UniqueConstraint, func
 from sqlalchemy import Enum as SAEnum
-from sqlalchemy.orm import Mapped, relationship
-from sqlalchemy.testing.schema import mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
-from app.models import Trip
 
 if TYPE_CHECKING:
     from app.models.trip import Trip
