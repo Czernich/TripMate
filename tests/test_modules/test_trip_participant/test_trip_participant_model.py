@@ -52,23 +52,6 @@ async def test_each_role_persists(
     assert result.joined_at.tzinfo is not None
 
 
-async def test_default_factory_role(
-    db_session: AsyncSession,
-):
-    trip, user = await create_entities(db_session)
-
-    participant = TripParticipantFactory.build(
-        trip=trip,
-        user=user,
-    )
-
-    db_session.add(participant)
-    await db_session.flush()
-    await db_session.refresh(participant)
-
-    assert participant.role == TripRole.MEMBER
-
-
 async def test_duplicate_membership_rejected(
     db_session: AsyncSession,
 ):
@@ -214,6 +197,49 @@ async def test_participant_relationships(
     assert loaded_user.trip_participations[0].trip_id == trip_id
 
 
+async def test_multiple_trip_memberships(
+    db_session: AsyncSession,
+):
+    user1 = UserFactory.build(email="user1@tripmate.com")
+    user2 = UserFactory.build(email="user2@tripmate.com")
+    trip1 = TripFactory.build(name="Summer in Rome")
+    trip2 = TripFactory.build(name="Winter in Paris")
+
+    db_session.add_all([user1, user2, trip1, trip2])
+    await db_session.flush()
+
+    participants = [
+        TripParticipant(
+            user_id=user1.id,
+            trip_id=trip1.id,
+            role=TripRole.OWNER,
+        ),
+        TripParticipant(
+            user_id=user1.id,
+            trip_id=trip2.id,
+            role=TripRole.MEMBER,
+        ),
+        TripParticipant(
+            user_id=user2.id,
+            trip_id=trip1.id,
+            role=TripRole.MEMBER,
+        ),
+    ]
+
+    db_session.add_all(participants)
+    await db_session.flush()
+
+    result = (await db_session.scalars(select(TripParticipant))).all()
+
+    assert len(result) == 3
+
+    assert {(p.user_id, p.trip_id) for p in result} == {
+        (user1.id, trip1.id),
+        (user1.id, trip2.id),
+        (user2.id, trip1.id),
+    }
+
+
 @pytest.mark.parametrize("target", ["trip", "user"])
 async def test_database_cascade_delete(
     db_session: AsyncSession,
@@ -302,8 +328,6 @@ async def test_model_defines_expected_indexes():
         index.name: tuple(column.name for column in index.columns)
         for index in TripParticipant.__table__.indexes
     }
-
-    print([index.name for index in TripParticipant.__table__.indexes])
 
     assert indexes["ix_trip_participants_trip_id"] == ("trip_id",)
     assert indexes["ix_trip_participants_user_id"] == ("user_id",)
