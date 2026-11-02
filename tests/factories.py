@@ -3,6 +3,7 @@ from datetime import date
 import factory
 
 import app.models
+from app.models import TripParticipant, TripRole
 
 
 class TripFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -22,3 +23,10 @@ class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
     email = "user1@tripmate.com"
     password_hash = "$2a$12$qNvf9ovKdIaAQu9rSUZvKOlE"
     display_name = "TripMate"
+
+
+class TripParticipantFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = TripParticipant
+
+    role = TripRole.MEMBER
