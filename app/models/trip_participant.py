@@ -24,7 +24,7 @@ class TripParticipant(Base):
     __tablename__ = "trip_participants"
 
     __table_args__ = (
-        UniqueConstraint("user_id", "trip_id", name="trip_participant_user_id_trip_id"),
+        UniqueConstraint("user_id", "trip_id", name="uq_trip_participants_trip_user"),
         Index("ix_trip_participants_trip_id", "trip_id"),
         Index("ix_trip_participants_user_id", "user_id"),
     )
@@ -46,7 +46,7 @@ class TripParticipant(Base):
             native_enum=False,
             create_constraint=True,
             validate_strings=True,
-            name="ck_trip_participant_role",
+            name="ck_trip_participants_role",
             length=16,
         ),
         nullable=False,
