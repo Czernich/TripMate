@@ -1,3 +1,6 @@
+from typing import Literal
+
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -15,6 +18,12 @@ class Settings(BaseSettings):
     DB_POOL_RECYCLE: int
     DB_ECHO: bool
     TESTING: bool = False
+    LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+
+    @field_validator("LOG_LEVEL", mode="before")
+    @classmethod
+    def normalize_log_level(cls, value: object) -> object:
+        return value.upper() if isinstance(value, str) else value
 
     @property
     def async_database_url(self) -> str:

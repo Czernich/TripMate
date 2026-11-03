@@ -6,6 +6,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app.exceptions.base import AppBaseException
+from app.middleware import REQUEST_ID_HEADER
 
 logger = logging.getLogger(__name__)
 
@@ -27,9 +28,13 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception):
-        logger.exception("Unhandled error: %s", exc)
+        # This handler runs outside the logging middleware, so the request ID
+        # is taken from request.state instead of the context variable.
+        request_id = getattr(request.state, "request_id", "-")
+        logger.exception("Unhandled error: %s", exc, extra={"request_id": request_id})
         return JSONResponse(
             status_code=500,
+            headers={REQUEST_ID_HEADER: request_id},
             content={
                 "error": {
                     "code": "INTERNAL_SERVER_ERROR",
