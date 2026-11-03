@@ -136,7 +136,7 @@ async def test_unhandled_exception_logs_request_id_and_stack_trace(
     assert "Traceback" not in response.text
 
     entries = log_entries()
-    error = next(e for e in entries if e["level"] == "ERROR")
+    error = next(e for e in entries if e["logger"] == "app.exceptions.handlers")
     assert error["request_id"] == "boom-1"
     assert "Traceback" in error["exception"]
     assert "RuntimeError" in error["exception"]

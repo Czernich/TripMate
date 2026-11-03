@@ -52,7 +52,15 @@ class RequestContextMiddleware:
         try:
             await self.app(scope, receive, send_with_request_id)
         finally:
-            logger.info(
+            # Failed requests stay visible even when LOG_LEVEL is raised to WARNING.
+            if status_code >= 500:
+                level = logging.ERROR
+            elif status_code >= 400:
+                level = logging.WARNING
+            else:
+                level = logging.INFO
+            logger.log(
+                level,
                 "request completed",
                 extra={
                     "method": scope["method"],
