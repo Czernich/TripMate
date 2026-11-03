@@ -18,7 +18,10 @@ class UserRepository:
             await self.session.refresh(user)
 
         except IntegrityError as exc:
-            original_exception = exc.orig.__cause__
+            original_exception = exc.orig
+            if original_exception is not None:
+                original_exception = original_exception.__cause__
+
             constraint_name = getattr(
                 original_exception,
                 "constraint_name",
