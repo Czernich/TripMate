@@ -10,9 +10,12 @@ request_id_ctx: ContextVar[str] = ContextVar("request_id", default="-")
 # Extra fields that the request logger can attach to a log record.
 _EXTRA_FIELDS = ("method", "path", "status_code", "duration_ms")
 
+# Masks the value after a sensitive key. Quoted values may contain spaces; unquoted
+# values end at the first whitespace, comma, semicolon or ampersand.
 _SENSITIVE_PATTERN = re.compile(
     r"(?i)\b(password|passwd|pwd|secret|token|api[_-]?key|authorization)\b"
-    r"""(["']?\s*[=:]\s*["']?)(?:bearer\s+)?[^\s,;&"']+"""
+    r"""(["']?\s*[=:]\s*)"""
+    r"""(?:"[^"]*"|'[^']*'|["']?(?:(?:bearer|basic)\s+)?[^\s,;&"']+)"""
 )
 
 

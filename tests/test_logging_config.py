@@ -127,6 +127,10 @@ def test_json_formatter_redacts_sensitive_values():
         ("Authorization: Bearer abc.def", "abc.def"),
         ('{"token": "xyz123"}', "xyz123"),
         ("api_key=KEY123", "KEY123"),
+        ('{"password": "my secret pass", "user": "x"}', "secret pass"),
+        ("{'token': 'a b c'}", "b c"),
+        ("Authorization: Basic dXNlcjpwYXNz", "dXNlcjpwYXNz"),
+        ('password="abc', "abc"),
     ],
 )
 def test_redact_masks_sensitive_values(text, secret):
