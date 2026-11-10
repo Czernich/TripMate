@@ -1,9 +1,22 @@
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 
 import factory
 
 import app.models
 from app.models import TripParticipant, TripRole
+
+
+class TripCreatePayloadFactory(factory.DictFactory):
+    name = "Test trip"
+    destination = "Paris"
+    start_date = factory.LazyFunction(
+        lambda: (datetime.now(tz=timezone.utc).date() + timedelta(days=30)).isoformat()
+    )
+    end_date = factory.LazyAttribute(
+        lambda payload: (
+            date.fromisoformat(payload.start_date) + timedelta(days=5)
+        ).isoformat()
+    )
 
 
 class TripFactory(factory.alchemy.SQLAlchemyModelFactory):
