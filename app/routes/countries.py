@@ -16,6 +16,23 @@ router = APIRouter(
     "/{country_code}",
     response_model=CountryResponse,
     summary="Get country reference information",
+    description=(
+        "Returns normalized country information for an ISO 3166-1 "
+        "alpha-2 code. Codes are case-insensitive. "
+        "Trip membership is not required. "
+        "UTC offsets are not IANA timezone identifiers."
+    ),
+    responses={
+        404: {"description": "Country was not found."},
+        422: {"description": "Invalid country-code format."},
+        502: {"description": "Country provider returned a malformed response."},
+        503: {
+            "description": (
+                "Country provider is unavailable or its rate limit was reached."
+            )
+        },
+        504: {"description": "Country provider timed out."},
+    },
 )
 async def get_country(
     country_code: Annotated[

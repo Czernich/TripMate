@@ -183,3 +183,9 @@ def test_openapi_documents_country_response(api_app):
         "languages",
         "utc_offsets",
     }
+
+
+def test_openapi_documents_country_error_responses(api_app):
+    operation = api_app.openapi()["paths"]["/countries/{country_code}"]["get"]
+
+    assert {"200", "404", "422", "502", "503", "504"} <= set(operation["responses"])

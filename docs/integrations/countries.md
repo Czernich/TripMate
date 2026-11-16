@@ -174,3 +174,72 @@ lifecycle rather than creating a new client for every request.
 
 CountryProvider defines the interface that application code can depend on
 when a replaceable provider is needed.
+
+
+## Public API
+
+### GET /countries/{country_code}
+
+Returns normalized reference information for a single country.
+Trip membership is not required.
+
+The country code must contain exactly two ASCII letters.
+Lowercase and mixed-case codes are accepted and normalized to uppercase.
+
+Example request:
+
+```http
+GET /countries/pl
+```
+
+Example response:
+
+```json
+{
+  "code": "PL",
+  "name": "Poland",
+  "currencies": [
+    {
+      "code": "PLN",
+      "name": "Polish złoty",
+      "symbol": "zł"
+    }
+  ],
+  "languages": [
+    {
+      "code": "pl",
+      "name": "Polish"
+    }
+  ],
+  "utc_offsets": ["UTC+01:00"]
+}
+```
+
+All currency, language and UTC-offset entries returned by the integration
+are preserved. UTC offsets do not describe daylight-saving transition rules.
+
+| HTTP status | Meaning |
+| --- | --- |
+| 200 | Country information returned |
+| 404 | Unknown country |
+| 422 | Invalid country-code format |
+| 502 | Malformed upstream response |
+| 503 | Provider unavailable or rate-limited |
+| 504 | Provider timeout |
+
+Integration errors use the standard API error envelope:
+
+```json
+{
+  "error": {
+    "code": "COUNTRY_PROVIDER_UNAVAILABLE",
+    "message": "Country provider is unavailable."
+  }
+}
+```
+
+Validation errors use the standard validation error envelope, including
+validation details. Public responses do not include provider credentials
+or raw upstream payloads.
+
+The endpoint does not implement search, listing, caching or persistence.
