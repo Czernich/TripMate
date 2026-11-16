@@ -411,9 +411,9 @@ Possible future integrations:
 - geocoding services,
 - country information APIs.
 
-| Integration | Purpose | Documentation | Failure Strategy |
-|---|---|---|---|
-| - | - | - | None introduced yet |
+| Integration | Purpose | Documentation                                                   | Failure Strategy |
+|--|---|-----------------------------------------------------------------|---|
+| REST Countries API v5 | Country reference lookup by ISO 3166-1 alpha-2 code: name, currencies, languages and UTC offsets | [Country reference integration](docs/integrations/countries.md) | Typed errors for unknown countries, timeouts, provider failures and malformed responses. No automatic retries or fallback. |
 
 ---
 ## Using Makefile (recommended)
