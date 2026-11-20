@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
 from app.modules.users.exceptions import UserAlreadyExistsException
+from app.modules.users.schemas import normalize_email
 
 
 class UserRepository:
@@ -11,6 +12,7 @@ class UserRepository:
         self.session = session
 
     async def add(self, user: User) -> User:
+        user.email = normalize_email(user.email)
         self.session.add(user)
 
         try:
@@ -42,5 +44,9 @@ class UserRepository:
         return result.scalar_one_or_none()
 
     async def get_by_email(self, email: str) -> User | None:
-        result = await self.session.execute(select(User).where(User.email == email))
+        normalized_email = normalize_email(email)
+
+        result = await self.session.execute(
+            select(User).where(User.email == normalized_email)
+        )
         return result.scalar_one_or_none()
