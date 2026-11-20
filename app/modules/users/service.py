@@ -1,6 +1,6 @@
+import asyncio
 import hashlib
 import secrets
-import asyncio
 
 from pydantic import TypeAdapter
 
