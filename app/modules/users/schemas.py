@@ -1,9 +1,9 @@
-from re import fullmatch
 from typing import Annotated
 
 from pydantic import (
     BaseModel,
-    BeforeValidator,
+    AfterValidator,
+    EmailStr,
     ConfigDict,
     Field,
     StringConstraints,
@@ -12,15 +12,6 @@ from pydantic import (
 
 def normalize_email(value: str) -> str:
     return value.strip().lower()
-
-
-def validate_email(value: str) -> str:
-    pattern = r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-
-    if not fullmatch(pattern, value):
-        raise ValueError("Invalid email address")
-
-    return value
 
 
 def validate_password(value: str) -> str:
@@ -37,9 +28,8 @@ def validate_password(value: str) -> str:
 
 
 NormalizedEmail = Annotated[
-    str,
-    BeforeValidator(validate_email),
-    BeforeValidator(normalize_email),
+    EmailStr,
+    AfterValidator(normalize_email),
     Field(max_length=254),
 ]
 
@@ -55,7 +45,7 @@ TrimmedDisplayName = Annotated[
 ValidatedPassword = Annotated[
     str,
     StringConstraints(min_length=8),
-    BeforeValidator(validate_password),
+    AfterValidator(validate_password),
 ]
 
 
