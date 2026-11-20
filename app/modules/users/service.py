@@ -1,5 +1,6 @@
 import hashlib
 import secrets
+import asyncio
 
 from pydantic import TypeAdapter
 
@@ -29,10 +30,15 @@ class UserService:
         return f"scrypt$16384$8$1${salt.hex()}${password_hash.hex()}"
 
     async def create_user(self, payload: UserCreate) -> User:
+        password_hash = await asyncio.to_thread(
+            self._hash_password,
+            payload.password,
+        )
+
         user = User(
             email=payload.email,
             display_name=payload.display_name,
-            password_hash=self._hash_password(payload.password),
+            password_hash=password_hash,
         )
 
         return await self.repository.add(user)
