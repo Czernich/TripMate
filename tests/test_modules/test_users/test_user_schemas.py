@@ -36,6 +36,8 @@ def test_email_is_trimmed_and_lowercased():
         "@example.com",
         "john@example",
         "john example@example.com",
+        "a..b@example.com",
+        "a@-example.com"
     ],
 )
 def test_invalid_email(email):
