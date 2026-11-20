@@ -86,3 +86,16 @@ async def test_session_usable_after_duplicate_email(
     result = await db_session.execute(select(1))
 
     assert result.scalar_one() == 1
+
+
+@pytest.mark.asyncio
+async def test_add_user_duplicate_email_case_insensitive(
+    db_session,
+    saved_user,
+    user_factory,
+):
+    repository = UserRepository(db_session)
+    duplicate = user_factory(email=saved_user.email.upper())
+
+    with pytest.raises(UserAlreadyExistsException):
+        await repository.add(duplicate)
