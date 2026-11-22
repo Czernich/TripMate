@@ -40,9 +40,9 @@ class ExpenseRepository:
         return result.scalar_one_or_none()
 
     async def is_trip_participant(
-            self,
-            trip_id: int,
-            user_id: int,
+        self,
+        trip_id: int,
+        user_id: int,
     ) -> bool:
         result = await self.session.scalar(
             select(
