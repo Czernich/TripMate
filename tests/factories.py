@@ -1,4 +1,5 @@
 from datetime import date, datetime, timedelta, timezone
+from decimal import Decimal
 
 import factory
 
@@ -43,3 +44,12 @@ class TripParticipantFactory(factory.alchemy.SQLAlchemyModelFactory):
         model = TripParticipant
 
     role = TripRole.MEMBER
+
+
+class ExpenseFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = app.models.Expense
+
+    description = "Hotel accommodation"
+    amount = Decimal("250.00")
+    currency = "PLN"
