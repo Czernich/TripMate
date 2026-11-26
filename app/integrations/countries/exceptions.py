@@ -30,6 +30,18 @@ class CountryProviderUnavailable(CountryReferenceError):
     message = "Country provider is unavailable."
 
 
+class CountryProviderRateLimitExceeded(CountryReferenceError):
+    status_code = 503
+    error_code = "COUNTRY_PROVIDER_RATE_LIMIT_EXCEEDED"
+    message = "Country provider rate limit exceeded."
+
+
+class CountryProviderAuthenticationError(CountryReferenceError):
+    status_code = 502
+    error_code = "COUNTRY_PROVIDER_AUTHENTICATION_ERROR"
+    message = "Country provider authentication or authorization failed."
+
+
 class MalformedCountryResponse(CountryReferenceError):
     status_code = 502
     error_code = "MALFORMED_COUNTRY_RESPONSE"

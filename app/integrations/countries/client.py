@@ -7,6 +7,8 @@ from pydantic import ValidationError
 from app.integrations.countries.config import CountryProviderSettings
 from app.integrations.countries.exceptions import (
     CountryNotFound,
+    CountryProviderAuthenticationError,
+    CountryProviderRateLimitExceeded,
     CountryProviderTimeout,
     CountryProviderUnavailable,
     InvalidCountryCode,
@@ -54,6 +56,12 @@ class RestCountriesClient:
             raise CountryProviderTimeout() from None
         except httpx.RequestError:
             raise CountryProviderUnavailable() from None
+
+        if response.status_code in (401, 403):
+            raise CountryProviderAuthenticationError()
+
+        if response.status_code == 429:
+            raise CountryProviderRateLimitExceeded()
 
         if response.status_code != 200:
             raise CountryProviderUnavailable()

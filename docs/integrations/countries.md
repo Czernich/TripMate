@@ -132,6 +132,8 @@ alone to calculate a trip's local time for an arbitrary date.
 | InvalidCountryCode | Input does not contain exactly two ASCII letters |
 | CountryNotFound | Provider returned an empty result list |
 | CountryProviderTimeout | HTTPX reported a timeout |
+| CountryProviderAuthenticationError |	Provider authentication or authorization failed (401, 403) |
+| CountryProviderRateLimitExceeded |	Provider rate limit exceeded (429)|
 | CountryProviderUnavailable | Transport failure or a non-200 response |
 | MalformedCountryResponse | Invalid JSON, unexpected structure, missing or invalid fields, multiple results, or mismatched country code |
 
@@ -223,7 +225,7 @@ are preserved. UTC offsets do not describe daylight-saving transition rules.
 | 200 | Country information returned |
 | 404 | Unknown country |
 | 422 | Invalid country-code format |
-| 502 | Malformed upstream response |
+| 502 | Malformed upstream response or provider authentication failure |
 | 503 | Provider unavailable or rate-limited |
 | 504 | Provider timeout |
 

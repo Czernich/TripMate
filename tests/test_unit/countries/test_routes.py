@@ -8,6 +8,8 @@ from app.exceptions.handlers import register_exception_handlers
 from app.integrations.countries.client import CountryProvider
 from app.integrations.countries.exceptions import (
     CountryNotFound,
+    CountryProviderAuthenticationError,
+    CountryProviderRateLimitExceeded,
     CountryProviderTimeout,
     CountryProviderUnavailable,
     MalformedCountryResponse,
@@ -109,8 +111,26 @@ async def test_rejects_malformed_code(api_client, provider, code):
     [
         (CountryNotFound, 404, "COUNTRY_NOT_FOUND"),
         (CountryProviderTimeout, 504, "COUNTRY_PROVIDER_TIMEOUT"),
-        (CountryProviderUnavailable, 503, "COUNTRY_PROVIDER_UNAVAILABLE"),
-        (MalformedCountryResponse, 502, "MALFORMED_COUNTRY_RESPONSE"),
+        (
+            CountryProviderUnavailable,
+            503,
+            "COUNTRY_PROVIDER_UNAVAILABLE",
+        ),
+        (
+            MalformedCountryResponse,
+            502,
+            "MALFORMED_COUNTRY_RESPONSE",
+        ),
+        (
+            CountryProviderAuthenticationError,
+            502,
+            "COUNTRY_PROVIDER_AUTHENTICATION_ERROR",
+        ),
+        (
+            CountryProviderRateLimitExceeded,
+            503,
+            "COUNTRY_PROVIDER_RATE_LIMIT_EXCEEDED",
+        ),
     ],
 )
 async def test_maps_provider_errors(

@@ -7,6 +7,8 @@ from app.integrations.countries.client import RestCountriesClient
 from app.integrations.countries.config import CountryProviderSettings
 from app.integrations.countries.exceptions import (
     CountryNotFound,
+    CountryProviderAuthenticationError,
+    CountryProviderRateLimitExceeded,
     CountryProviderTimeout,
     CountryProviderUnavailable,
     InvalidCountryCode,
@@ -148,10 +150,24 @@ async def test_unknown_country(settings):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "status_code",
-    [301, 400, 401, 403, 404, 410, 429, 500, 503],
+    "status_code,expected_error",
+    [
+        (301, CountryProviderUnavailable),
+        (400, CountryProviderUnavailable),
+        (401, CountryProviderAuthenticationError),
+        (403, CountryProviderAuthenticationError),
+        (404, CountryProviderUnavailable),
+        (410, CountryProviderUnavailable),
+        (429, CountryProviderRateLimitExceeded),
+        (500, CountryProviderUnavailable),
+        (503, CountryProviderUnavailable),
+    ],
 )
-async def test_upstream_failure(status_code, settings):
+async def test_upstream_failure(
+    status_code,
+    expected_error,
+    settings,
+):
     def handler(request):
         return httpx.Response(
             status_code,
@@ -163,7 +179,7 @@ async def test_upstream_failure(status_code, settings):
     ) as http:
         client = RestCountriesClient(http, settings)
 
-        with pytest.raises(CountryProviderUnavailable) as caught:
+        with pytest.raises(expected_error) as caught:
             await client.get_country("CA")
 
     assert "test-secret" not in str(caught.value)
