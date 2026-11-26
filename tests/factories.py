@@ -1,9 +1,9 @@
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
 
 import factory
 
 import app.models
-from app.models import TripParticipant, TripRole
+from app.models import Activity, TripParticipant, TripRole
 
 
 class TripCreatePayloadFactory(factory.DictFactory):
@@ -43,3 +43,12 @@ class TripParticipantFactory(factory.alchemy.SQLAlchemyModelFactory):
         model = TripParticipant
 
     role = TripRole.MEMBER
+
+
+class ActivityFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = Activity
+
+    title = "Colosseum tour"
+    activity_date = date(2026, 7, 2)
+    start_time = time(9, 30)
