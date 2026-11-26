@@ -251,8 +251,13 @@ async def test_missing_required_field(payload, settings, field):
         "{}",
         '{"data": null}',
         '{"data": {}}',
+        '{"data": []}',
         '{"data": {"objects": null}}',
+        '{"data": {"objects": {}}}',
+        '{"data": {"objects": "invalid"}}',
         '{"data": {"objects": [null]}}',
+        '{"data": {"objects": [123]}}',
+        '{"data": {"objects": [{}]}}',
     ],
 )
 async def test_malformed_response(body, settings):
@@ -311,8 +316,22 @@ async def test_rejects_multiple_results(payload, settings):
 
 
 @pytest.mark.asyncio
-async def test_rejects_demo_response(payload, settings):
-    payload["data"]["_demo"] = {"message": "Example response"}
+@pytest.mark.parametrize(
+    "demo_value",
+    [
+        {"message": "Example response"},
+        None,
+        False,
+        "",
+        {},
+    ],
+)
+async def test_rejects_demo_response(
+    payload,
+    settings,
+    demo_value,
+):
+    payload["data"]["_demo"] = demo_value
 
     def handler(request):
         return httpx.Response(200, json=payload)
@@ -348,3 +367,31 @@ async def test_does_not_follow_redirects(settings):
             await client.get_country("CA")
 
     assert len(requests) == 1
+
+
+@pytest.mark.asyncio
+async def test_ignores_unknown_provider_fields(payload, settings):
+    payload["metadata"] = {"version": "5"}
+    payload["data"]["total"] = 1
+
+    item = payload["data"]["objects"][0]
+
+    item["population"] = 40_000_000
+    item["codes"]["alpha_3"] = "CAN"
+    item["names"]["official"] = "Canada"
+    item["currencies"][0]["unknown_field"] = "value"
+    item["languages"][0]["unknown_field"] = "value"
+
+    def handler(request):
+        return httpx.Response(200, json=payload)
+
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(handler),
+    ) as http:
+        client = RestCountriesClient(http, settings)
+
+        country = await client.get_country("CA")
+
+    assert country.code == "CA"
+    assert country.name == "Canada"
+    assert "population" not in country.model_dump()

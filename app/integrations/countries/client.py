@@ -14,6 +14,7 @@ from app.integrations.countries.exceptions import (
     InvalidCountryCode,
     MalformedCountryResponse,
 )
+from app.integrations.countries.provider_schemas import ProviderResponse
 from app.integrations.countries.schemas import Country
 
 
@@ -73,17 +74,12 @@ class RestCountriesClient:
         expected_code: str,
     ) -> Country:
         try:
-            payload = response.json()
-            data = payload["data"]
+            payload = ProviderResponse.model_validate_json(response.content)
 
-            # Klucz demonstracyjny zwraca przykładowy kraj.
-            if "_demo" in data:
+            if "demo" in payload.data.model_fields_set:
                 raise MalformedCountryResponse()
 
-            objects = data["objects"]
-
-            if not isinstance(objects, list):
-                raise MalformedCountryResponse()
+            objects = payload.data.objects
 
             if not objects:
                 raise CountryNotFound()
@@ -93,39 +89,26 @@ class RestCountriesClient:
 
             item = objects[0]
 
-            country = Country.model_validate(
+            if item.codes.alpha_2 != expected_code:
+                raise MalformedCountryResponse()
+
+            return Country.model_validate(
                 {
-                    "code": item["codes"]["alpha_2"],
-                    "name": item["names"]["common"],
+                    "code": item.codes.alpha_2,
+                    "name": item.names.common,
                     "currencies": [
-                        {
-                            "code": currency["code"],
-                            "name": currency["name"],
-                            "symbol": currency.get("symbol"),
-                        }
-                        for currency in item["currencies"]
+                        currency.model_dump() for currency in item.currencies
                     ],
                     "languages": [
                         {
-                            "code": language["bcp47"],
-                            "name": language["name"],
+                            "code": language.bcp47,
+                            "name": language.name,
                         }
-                        for language in item["languages"]
+                        for language in item.languages
                     ],
-                    "utc_offsets": item["timezones"],
+                    "utc_offsets": item.timezones,
                 }
             )
 
-            if country.code != expected_code:
-                raise MalformedCountryResponse()
-
-            return country
-
-        except (
-            KeyError,
-            TypeError,
-            AttributeError,
-            ValueError,
-            ValidationError,
-        ):
+        except ValidationError:
             raise MalformedCountryResponse() from None
