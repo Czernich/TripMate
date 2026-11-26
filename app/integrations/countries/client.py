@@ -57,16 +57,15 @@ class RestCountriesClient:
         except httpx.RequestError:
             raise CountryProviderUnavailable() from None
 
-        if response.status_code in (401, 403):
-            raise CountryProviderAuthenticationError()
-
-        if response.status_code == 429:
-            raise CountryProviderRateLimitExceeded()
-
-        if response.status_code != 200:
-            raise CountryProviderUnavailable()
-
-        return self._map_response(response, normalized_code)
+        match response.status_code:
+            case 200:
+                return self._map_response(response, normalized_code)
+            case 401 | 403:
+                raise CountryProviderAuthenticationError()
+            case 429:
+                raise CountryProviderRateLimitExceeded()
+            case _:
+                raise CountryProviderUnavailable()
 
     @staticmethod
     def _map_response(

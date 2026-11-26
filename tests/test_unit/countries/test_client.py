@@ -160,7 +160,9 @@ async def test_unknown_country(settings):
         (410, CountryProviderUnavailable),
         (429, CountryProviderRateLimitExceeded),
         (500, CountryProviderUnavailable),
+        (502, CountryProviderUnavailable),
         (503, CountryProviderUnavailable),
+        (504, CountryProviderUnavailable),
     ],
 )
 async def test_upstream_failure(
