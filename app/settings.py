@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     DB_ECHO: bool
     TESTING: bool = False
     LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+    JWT_SECRET_KEY: str
+    JWT_ALGORITHM: str
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int
 
     @field_validator("LOG_LEVEL", mode="before")
     @classmethod
