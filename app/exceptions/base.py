@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from fastapi import status
 
 
@@ -10,6 +12,8 @@ class AppBaseException(Exception):
     status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR
     error_code: str = "INTERNAL_SERVER_ERROR"
     message: str = "An unexpected server error occurred."
+    headers: ClassVar[dict[str, str] | None] = None
+    commit_on_error: ClassVar[bool] = False
 
     def __init__(self, message: str | None = None, error_code: str | None = None):
         if message:
