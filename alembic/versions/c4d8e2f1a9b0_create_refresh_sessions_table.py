@@ -1,7 +1,7 @@
 """create refresh_sessions table
 
 Revision ID: c4d8e2f1a9b0
-Revises: bc5e46faea40
+Revises: a7c3e91d5b24
 Create Date: 2026-11-28 11:11:00.000000
 
 """
@@ -14,7 +14,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "c4d8e2f1a9b0"
-down_revision: str | Sequence[str] | None = "bc5e46faea40"
+down_revision: str | Sequence[str] | None = "a7c3e91d5b24"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
