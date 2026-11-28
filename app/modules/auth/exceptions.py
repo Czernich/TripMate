@@ -17,3 +17,4 @@ class InvalidRefreshTokenException(AppBaseException):
     error_code: str = "INVALID_REFRESH_TOKEN"
     message: str = "Invalid or expired refresh token."
     headers: ClassVar[dict[str, str] | None] = {"WWW-Authenticate": "Bearer"}
+    commit_on_error: ClassVar[bool] = True
