@@ -2,6 +2,7 @@
 exclude_dirs = ["tests", "migrations", ".venv"]
 
 [tool.mypy]
+plugins = ["pydantic.mypy"]
 check_untyped_defs = true
 
 [tool.pytest.ini_options]
