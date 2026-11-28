@@ -13,6 +13,7 @@ class AppBaseException(Exception):
     error_code: str = "INTERNAL_SERVER_ERROR"
     message: str = "An unexpected server error occurred."
     headers: ClassVar[dict[str, str] | None] = None
+    commit_on_error: ClassVar[bool] = False
 
     def __init__(self, message: str | None = None, error_code: str | None = None):
         if message:
