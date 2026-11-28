@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock
 
@@ -5,6 +6,7 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.database import get_db
 from app.models.refresh_session import RefreshSession
 from app.modules.auth.exceptions import InvalidRefreshTokenException
 from app.modules.auth.refresh_service import RefreshSessionService
@@ -137,18 +139,17 @@ async def test_failed_replacement_write_rolls_back_consumption(
 
     repo.add = AsyncMock(side_effect=RuntimeError("db write failed"))  # type: ignore[method-assign]
     with pytest.raises(RuntimeError, match="db write failed"):
-        await service.rotate(issued.token)
+        async with db_session.begin_nested():
+            await service.rotate(issued.token)
 
-    await db_session.rollback()
     result = await db_session.execute(
         select(RefreshSession).where(
             RefreshSession.token_hash == hash_refresh_token(issued.token)
         )
     )
-    assert (
-        result.scalar_one_or_none() is None
-        or result.scalar_one_or_none().consumed_at is None
-    )
+    stored = result.scalar_one_or_none()
+    assert stored is not None
+    assert stored.consumed_at is None
 
 
 async def test_revoke_family_is_idempotent_and_inactive_user_rejected(
@@ -172,3 +173,16 @@ async def test_revoke_family_is_idempotent_and_inactive_user_rejected(
 
     with pytest.raises(InvalidRefreshTokenException):
         await service.issue(999999)
+
+
+async def test_get_db_commits_on_invalid_refresh_token_exception(monkeypatch):
+    mock_session = AsyncMock()
+    mock_session.__aenter__.return_value = mock_session
+    monkeypatch.setattr("app.database.SessionLocal", lambda: mock_session)
+
+    with pytest.raises(InvalidRefreshTokenException):
+        async with asynccontextmanager(get_db)():
+            raise InvalidRefreshTokenException()
+
+    mock_session.commit.assert_awaited_once()
+    mock_session.rollback.assert_not_awaited()
