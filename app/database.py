@@ -4,7 +4,7 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
-from app.exceptions import DatabaseUnavailableException
+from app.exceptions import AppBaseException, DatabaseUnavailableException
 from app.settings import settings_db
 
 
@@ -22,6 +22,12 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         try:
             yield session
             await session.commit()
+        except AppBaseException as exc:
+            if exc.commit_on_error:
+                await session.commit()
+            else:
+                await session.rollback()
+            raise
         except (OperationalError, OSError) as exc:
             await session.rollback()
             raise DatabaseUnavailableException() from exc
